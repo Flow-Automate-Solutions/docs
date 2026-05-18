@@ -1,55 +1,43 @@
-# Mintlify Starter Kit
+# magic-cms-docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+Two Mintlify projects served from this one repo.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+| Project | Directory | URL (target) | Audience | Auth |
+|---|---|---|---|---|
+| External (Storefront API) | [external/](./external) | developers.magic-cms.com | Customers, storefront integrators | Public |
+| Internal API | [internal/](./internal) | docs-internal.magic-cms.com | Magic CMS team | OAuth (configured in Mintlify dashboard) |
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+Each subdirectory has its own `docs.json` and is wired up as an independent Mintlify project pointed at that subdirectory. Pushes that only touch one subdirectory only rebuild that project.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Source of truth
 
-## AI-assisted writing
+API reference pages are generated from OpenAPI specs in [_shared/](./_shared):
 
-Set up your AI coding tool to work with Mintlify:
+- `openapi-public.json` — subset of endpoints reachable via storefront API keys (rendered into the external docs)
+- `openapi-internal.json` — full backend surface used by the dashboard (rendered into the internal docs)
+
+Both specs are intended to be emitted by a generator script in `magic-cms-scripts/` (TODO) that introspects the Pydantic models in `magic-cms-catalog-serverless-apis/` and `magic-cms-common-serverless-apis/`. Until that lands, the files here are hand-written stubs with a handful of representative operations.
+
+**Do not hand-edit field descriptions in the JSON files once the generator is live — they get overwritten on each regen. Edit the Pydantic models instead** (`Field(description="...")`).
+
+## Local dev
 
 ```bash
-npx skills add https://mintlify.com/docs
+cd external && mint dev   # serve external on localhost:3000
+cd internal && mint dev   # serve internal on localhost:3000
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+Run them in separate terminals if you want both up at once (Mintlify picks a free port for the second one).
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+Install the CLI once with `npm i -g mint`.
 
-## Development
+## Mintlify dashboard setup
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+For each project:
 
-```
-npm i -g mint
-```
+1. Create a new Mintlify project pointing at this repo.
+2. Set **Repository → Subdirectory** to `external` or `internal`.
+3. Add a custom domain in **Settings → Domains**.
+4. For the internal project, enable authentication under **Settings → Authentication** (OAuth via Google/Azure AD or JWT against FlowAutomate).
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
-```
-
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Reference: <https://mintlify.com/docs/settings>.

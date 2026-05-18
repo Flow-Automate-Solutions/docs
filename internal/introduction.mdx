@@ -1,0 +1,23 @@
+---
+title: Magic CMS Internal API
+description: Reference for every endpoint the Magic CMS UI talks to.
+---
+
+This site documents the **full** Magic CMS backend surface — every lambda the
+dashboard calls, plus internal infrastructure endpoints not exposed externally.
+
+For the public, API-key-gated subset that storefronts integrate with, see the
+[Storefront API docs](https://developers.magic-cms.com).
+
+## Authentication
+
+All endpoints require a bearer token issued by FlowAutomate and an
+`x-tenant-id` header carrying the active CMS id. Both are set automatically
+by the dashboard's axios instance.
+
+## Source of truth
+
+These pages are auto-generated from the Pydantic models in
+`magic-cms-catalog-serverless-apis` and `magic-cms-common-serverless-apis`.
+Field descriptions live in `Field(description=...)` next to each model — edit
+them there, not in this site.
