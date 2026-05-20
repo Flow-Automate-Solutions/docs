@@ -29,6 +29,10 @@
     {
       "name": "Markets",
       "description": "Regional market configuration."
+    },
+    {
+      "name": "Activity Log",
+      "description": "Tenant activity events from update operations."
     }
   ],
   "paths": {
@@ -37,12 +41,16 @@
         "operationId": "createProduct",
         "summary": "Create a product",
         "description": "Creates a new product in the catalog. SKU is auto-generated server-side if omitted (`<3-char prefix>-<4 hex>`, e.g. `RED-A3F2`).",
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ProductCreate" }
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreate"
+              }
             }
           }
         },
@@ -53,16 +61,30 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "id": { "type": "string" } }
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "409": {
             "description": "SKU collision when caller supplied one.",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -71,13 +93,17 @@
       "post": {
         "operationId": "createApiKey",
         "summary": "Create an API key",
-        "description": "Generates a new storefront API key. The plaintext value is returned **only in this response** — save it immediately. Subsequent reads expose only `key_prefix`.",
-        "tags": ["API Keys"],
+        "description": "Generates a new storefront API key. The plaintext value is returned **only in this response** \u2014 save it immediately. Subsequent reads expose only `key_prefix`.",
+        "tags": [
+          "API Keys"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ApiKeyCreate" }
+              "schema": {
+                "$ref": "#/components/schemas/ApiKeyCreate"
+              }
             }
           }
         },
@@ -86,12 +112,18 @@
             "description": "Key created. Plaintext key in the `key` field.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ApiKeyCreateResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyCreateResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
@@ -100,19 +132,30 @@
         "operationId": "listMarkets",
         "summary": "List markets",
         "description": "Returns all markets configured for the tenant, paginated.",
-        "tags": ["Markets"],
+        "tags": [
+          "Markets"
+        ],
         "parameters": [
           {
             "name": "page",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
           },
           {
             "name": "size",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
           }
         ],
         "responses": {
@@ -125,15 +168,132 @@
                   "properties": {
                     "items": {
                       "type": "array",
-                      "items": { "$ref": "#/components/schemas/Market" }
+                      "items": {
+                        "$ref": "#/components/schemas/Market"
+                      }
                     },
-                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
                   }
                 }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/activity-log": {
+      "get": {
+        "operationId": "listActivityLog",
+        "summary": "List activity log entries",
+        "description": "Returns tenant-scoped activity events with server-side filters and pagination.",
+        "tags": [
+          "Activity Log"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "insert",
+                "update",
+                "delete"
+              ]
+            }
+          },
+          {
+            "name": "collection_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_at_asc",
+                "created_at_desc"
+              ],
+              "default": "created_at_desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated activity log entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityLogListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     }
@@ -156,11 +316,23 @@
     "responses": {
       "BadRequest": {
         "description": "Validation error.",
-        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
       },
       "Unauthorized": {
         "description": "Missing or invalid bearer token / tenant id.",
-        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -168,68 +340,293 @@
         "type": "object",
         "description": "Payload for creating a product. Mirrors the `ProductCreate` Pydantic model in `magic-cms-catalog-serverless-apis/products/models.py`.",
         "properties": {
-          "name": { "type": "string", "description": "Display name." },
-          "sku": { "type": "string", "nullable": true, "description": "Stock-keeping unit. If omitted or empty, the backend generates one of the form `<3-char prefix>-<4 hex>`." },
-          "fulfillment_type": { "type": "string", "enum": ["physical", "digital", "service"], "description": "How the product is delivered." },
-          "price": { "type": "number", "format": "float", "minimum": 0 },
-          "variant_type": { "type": "string", "enum": ["single", "multiple"], "default": "single", "description": "Whether the product has one variant or multiple option-based variants." }
+          "name": {
+            "type": "string",
+            "description": "Display name."
+          },
+          "sku": {
+            "type": "string",
+            "nullable": true,
+            "description": "Stock-keeping unit. If omitted or empty, the backend generates one of the form `<3-char prefix>-<4 hex>`."
+          },
+          "fulfillment_type": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "digital",
+              "service"
+            ],
+            "description": "How the product is delivered."
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0
+          },
+          "variant_type": {
+            "type": "string",
+            "enum": [
+              "single",
+              "multiple"
+            ],
+            "default": "single",
+            "description": "Whether the product has one variant or multiple option-based variants."
+          }
         },
-        "required": ["name", "fulfillment_type", "price"]
+        "required": [
+          "name",
+          "fulfillment_type",
+          "price"
+        ]
       },
       "ApiKeyCreate": {
         "type": "object",
         "description": "Payload for creating an API key.",
         "properties": {
-          "name": { "type": "string", "minLength": 1, "maxLength": 100, "description": "Human-readable label shown in the dashboard." },
-          "is_active": { "type": "boolean", "default": true, "description": "When false, the authorizer rejects requests using this key." },
-          "expires_at": { "type": "string", "format": "date-time", "nullable": true, "description": "ISO 8601 timestamp. Null = never expires." }
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Human-readable label shown in the dashboard."
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true,
+            "description": "When false, the authorizer rejects requests using this key."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "ISO 8601 timestamp. Null = never expires."
+          }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "ApiKeyCreateResponse": {
         "type": "object",
         "description": "Returned on create and rotate. The `key` field is the **only** time the plaintext is exposed.",
         "properties": {
-          "id": { "type": "string" },
-          "key": { "type": "string", "description": "Plaintext API key. Shown once. Format: `mck_<32 url-safe chars>`. Store immediately." },
-          "key_prefix": { "type": "string", "description": "First 11 chars of the key. Safe to display in lists." },
-          "name": { "type": "string" },
-          "is_active": { "type": "boolean" },
-          "expires_at": { "type": "string", "format": "date-time", "nullable": true }
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string",
+            "description": "Plaintext API key. Shown once. Format: `mck_<32 url-safe chars>`. Store immediately."
+          },
+          "key_prefix": {
+            "type": "string",
+            "description": "First 11 chars of the key. Safe to display in lists."
+          },
+          "name": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
         }
       },
       "Market": {
         "type": "object",
         "description": "A regional market with its own currency, FX rate, and catalog scoping.",
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string", "description": "Market display name, e.g. \"UAE Market\"." },
-          "country_code": { "type": "string", "minLength": 2, "maxLength": 2, "description": "ISO 3166-1 Alpha-2 code, uppercase." },
-          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "ISO 4217 currency code, uppercase." },
-          "domain": { "type": "string", "description": "Optional storefront domain pointing at this market." },
-          "fx_rate": { "type": "number", "description": "Multiplier applied to base prices for this market." },
-          "is_default": { "type": "boolean", "description": "Exactly one market per tenant is the default." },
-          "status": { "type": "string", "enum": ["active", "inactive"] }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Market display name, e.g. \"UAE Market\"."
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 Alpha-2 code, uppercase."
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 4217 currency code, uppercase."
+          },
+          "domain": {
+            "type": "string",
+            "description": "Optional storefront domain pointing at this market."
+          },
+          "fx_rate": {
+            "type": "number",
+            "description": "Multiplier applied to base prices for this market."
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "Exactly one market per tenant is the default."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
         }
       },
       "Pagination": {
         "type": "object",
         "properties": {
-          "page": { "type": "integer" },
-          "size": { "type": "integer" },
-          "total_items": { "type": "integer" },
-          "total_pages": { "type": "integer" },
-          "has_next": { "type": "boolean" },
-          "has_prev": { "type": "boolean" }
+          "page": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "total_items": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_prev": {
+            "type": "boolean"
+          }
         }
       },
       "Error": {
         "type": "object",
         "properties": {
-          "error": { "type": "string" },
-          "details": { "type": "object", "additionalProperties": true }
+          "error": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          }
         },
-        "required": ["error"]
+        "required": [
+          "error"
+        ]
+      },
+      "ActivityLogItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cms_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "insert",
+              "update",
+              "delete"
+            ]
+          },
+          "collection_name": {
+            "type": "string"
+          },
+          "many": {
+            "type": "boolean"
+          },
+          "upsert": {
+            "type": "boolean"
+          },
+          "target_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search_dict": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "update_dict": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            ]
+          },
+          "object_id_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "result": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "cms_id",
+          "user_id",
+          "action",
+          "collection_name",
+          "many",
+          "upsert",
+          "target_ids",
+          "object_id_fields",
+          "result",
+          "created_at"
+        ]
+      },
+      "ActivityLogListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityLogItem"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "items",
+          "pagination"
+        ]
       }
     }
   }
