@@ -15,12 +15,12 @@ API reference pages are generated from OpenAPI specs in [_shared/](./_shared).
 
 Per-service input files:
 
-- `openapi-*-serverless.json` (for example `openapi-catalog-serverless.json`, `openapi-inventory-serverless.json`)
+- `_shared/openapi-*` (for example `_shared/openapi-catalog-serverless.json`, `_shared/openapi-inventory-serverless.json`)
 
 Generated output files:
 
-- `openapi-internal.json` — merged internal API surface used by the dashboard docs
-- `openapi-public.json` — derived from internal by keeping only operations tagged `public`
+- `internal/openapi.json` — merged internal API surface used by the dashboard docs
+- `external/openapi.json` — derived public API by keeping only operations tagged `public`
 
 Generation is done by:
 
@@ -33,11 +33,11 @@ Conflict policy is fail-fast:
 
 This keeps ownership per service explicit and prevents accidental schema overrides.
 
-**Do not hand-edit generated files (`openapi-internal.json`, `openapi-public.json`) — they are overwritten on each regeneration.** Update the per-service source specs instead.
+**Do not hand-edit generated files (`internal/openapi.json`, `external/openapi.json`) — they are overwritten on each regeneration.** Update the per-service source specs instead.
 
 ### Public tag convention
 
-To expose an operation in `openapi-public.json`, include `public` in the operation `tags` list.
+To expose an operation in `external/openapi.json`, include `public` in the operation `tags` list.
 
 Example:
 
@@ -66,8 +66,8 @@ python tools/build_openapi.py
 
 This script updates:
 
-- `_shared/openapi-internal.json`
-- `_shared/openapi-public.json`
+- `internal/openapi.json`
+- `external/openapi.json`
 
 The docs repo CI workflow (`.github/workflows/build-openapi.yml`) runs the same command and fails if generated output is not committed.
 

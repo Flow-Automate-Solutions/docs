@@ -3,12 +3,12 @@ name: Build OpenAPI Specs
 on:
   push:
     paths:
-      - "_shared/openapi-*-serverless.json"
+      - "_shared/openapi-*"
       - "tools/build_openapi.py"
       - ".github/workflows/build-openapi.yml"
   pull_request:
     paths:
-      - "_shared/openapi-*-serverless.json"
+      - "_shared/openapi-*"
       - "tools/build_openapi.py"
       - ".github/workflows/build-openapi.yml"
 
@@ -28,4 +28,4 @@ jobs:
         run: python tools/build_openapi.py
 
       - name: Verify generated files are committed
-        run: git diff --exit-code _shared/openapi-internal.json _shared/openapi-public.json
+        run: git diff --exit-code internal/openapi.json external/openapi.json

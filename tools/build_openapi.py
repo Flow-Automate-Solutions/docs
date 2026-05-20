@@ -8,8 +8,9 @@ from typing import Any
 
 
 HTTP_METHODS = {"get", "put", "post", "delete", "patch", "options", "head", "trace"}
-INTERNAL_FILE = "openapi-internal.json"
-PUBLIC_FILE = "openapi-public.json"
+INTERNAL_FILE = "openapi.json"
+PUBLIC_FILE = "openapi.json"
+SKIP_INPUT_FILENAMES = {"openapi-internal.json", "openapi-public.json"}
 
 
 class MergeConflictError(RuntimeError):
@@ -171,7 +172,7 @@ def _build_internal(input_files: list[Path]) -> dict[str, Any]:
         valid_docs.append((path, doc))
 
     if not valid_docs:
-        raise RuntimeError("No valid non-empty openapi-*-serverless.json inputs found.")
+        raise RuntimeError("No valid non-empty _shared/openapi-* input files found.")
 
     # deterministic by file name
     valid_docs.sort(key=lambda x: x[0].name)
@@ -309,9 +310,14 @@ def main() -> int:
     if not shared_dir.exists():
         raise RuntimeError(f"Shared directory does not exist: {shared_dir}")
 
-    input_files = sorted(shared_dir.glob("openapi-*-serverless.json"))
-    internal_out = shared_dir / INTERNAL_FILE
-    public_out = shared_dir / PUBLIC_FILE
+    input_files = sorted(
+        p
+        for p in shared_dir.glob("openapi-*")
+        if p.is_file() and p.name not in SKIP_INPUT_FILENAMES
+    )
+    repo_root = shared_dir.parent
+    internal_out = repo_root / "internal" / INTERNAL_FILE
+    public_out = repo_root / "external" / PUBLIC_FILE
 
     print(f"Discovered {len(input_files)} input file(s).")
     internal_doc = _build_internal(input_files)
