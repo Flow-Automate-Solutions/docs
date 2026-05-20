@@ -1928,7 +1928,8 @@
         "summary": "List products",
         "operationId": "listProducts",
         "tags": [
-          "Products"
+          "Products",
+          "public"
         ],
         "responses": {
           "200": {
@@ -2030,7 +2031,8 @@
         "summary": "Create product",
         "operationId": "createProduct",
         "tags": [
-          "Products"
+          "Products",
+          "public"
         ],
         "responses": {
           "201": {
@@ -2073,7 +2075,8 @@
         "summary": "Delete product",
         "operationId": "deleteProduct",
         "tags": [
-          "Products"
+          "Products",
+          "public"
         ],
         "responses": {
           "200": {
@@ -2114,7 +2117,8 @@
         "summary": "Get product",
         "operationId": "getProduct",
         "tags": [
-          "Products"
+          "Products",
+          "public"
         ],
         "responses": {
           "200": {
@@ -2155,7 +2159,8 @@
         "summary": "Update product",
         "operationId": "updateProduct",
         "tags": [
-          "Products"
+          "Products",
+          "public"
         ],
         "responses": {
           "200": {
