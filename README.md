@@ -11,14 +11,41 @@ Each subdirectory has its own `docs.json` and is wired up as an independent Mint
 
 ## Source of truth
 
-API reference pages are generated from OpenAPI specs in [_shared/](./_shared):
+API reference pages are generated from OpenAPI specs in [_shared/](./_shared).
 
-- `openapi-public.json` — subset of endpoints reachable via storefront API keys (rendered into the external docs)
-- `openapi-internal.json` — full backend surface used by the dashboard (rendered into the internal docs)
+Per-service input files:
 
-Both specs are intended to be emitted by a generator script in `magic-cms-scripts/` (TODO) that introspects the Pydantic models in `magic-cms-catalog-serverless-apis/` and `magic-cms-common-serverless-apis/`. Until that lands, the files here are hand-written stubs with a handful of representative operations.
+- `openapi-*-serverless.json` (for example `openapi-catalog-serverless.json`, `openapi-inventory-serverless.json`)
 
-**Do not hand-edit field descriptions in the JSON files once the generator is live — they get overwritten on each regen. Edit the Pydantic models instead** (`Field(description="...")`).
+Generated output files:
+
+- `openapi-internal.json` — merged internal API surface used by the dashboard docs
+- `openapi-public.json` — derived from internal by keeping only operations tagged `public`
+
+Generation is done by:
+
+- `python tools/build_openapi.py`
+
+Conflict policy is fail-fast:
+
+- if two inputs define the same `path + method` differently, generation fails
+- if two inputs define the same component key differently, generation fails
+
+This keeps ownership per service explicit and prevents accidental schema overrides.
+
+**Do not hand-edit generated files (`openapi-internal.json`, `openapi-public.json`) — they are overwritten on each regeneration.** Update the per-service source specs instead.
+
+### Public tag convention
+
+To expose an operation in `openapi-public.json`, include `public` in the operation `tags` list.
+
+Example:
+
+```json
+{
+  "tags": ["public", "Products"]
+}
+```
 
 ## Local dev
 
@@ -30,6 +57,19 @@ cd internal && mint dev   # serve internal on localhost:3000
 Run them in separate terminals if you want both up at once (Mintlify picks a free port for the second one).
 
 Install the CLI once with `npm i -g mint`.
+
+## Regenerate OpenAPI locally
+
+```bash
+python tools/build_openapi.py
+```
+
+This script updates:
+
+- `_shared/openapi-internal.json`
+- `_shared/openapi-public.json`
+
+The docs repo CI workflow (`.github/workflows/build-openapi.yml`) runs the same command and fails if generated output is not committed.
 
 ## Mintlify dashboard setup
 

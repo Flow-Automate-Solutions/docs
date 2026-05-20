@@ -1,0 +1,31 @@
+name: Build OpenAPI Specs
+
+on:
+  push:
+    paths:
+      - "_shared/openapi-*-serverless.json"
+      - "tools/build_openapi.py"
+      - ".github/workflows/build-openapi.yml"
+  pull_request:
+    paths:
+      - "_shared/openapi-*-serverless.json"
+      - "tools/build_openapi.py"
+      - ".github/workflows/build-openapi.yml"
+
+jobs:
+  build-openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Generate merged OpenAPI specs
+        run: python tools/build_openapi.py
+
+      - name: Verify generated files are committed
+        run: git diff --exit-code _shared/openapi-internal.json _shared/openapi-public.json
