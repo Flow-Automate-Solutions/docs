@@ -6461,10 +6461,6 @@
           "clauses"
         ]
       },
-      "RuleAction": {
-        "type": "object",
-        "additionalProperties": true
-      },
       "Rule": {
         "type": "object",
         "properties": {
@@ -6489,12 +6485,6 @@
           },
           "conditions": {
             "$ref": "#/components/schemas/RuleConditions"
-          },
-          "actions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RuleAction"
-            }
           },
           "priority": {
             "type": "integer"
@@ -6526,7 +6516,6 @@
           "description",
           "type",
           "conditions",
-          "actions",
           "priority",
           "status",
           "version",
@@ -6549,12 +6538,6 @@
           },
           "conditions": {
             "$ref": "#/components/schemas/RuleConditions"
-          },
-          "actions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RuleAction"
-            }
           },
           "priority": {
             "type": "integer"
@@ -6585,12 +6568,6 @@
           },
           "conditions": {
             "$ref": "#/components/schemas/RuleConditions"
-          },
-          "actions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RuleAction"
-            }
           },
           "priority": {
             "type": "integer"
