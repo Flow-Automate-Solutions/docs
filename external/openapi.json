@@ -1,1 +1,248 @@
-../_shared/openapi-public.json
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Magic CMS Storefront API",
+    "version": "0.1.0",
+    "description": "Public API surface reachable via storefront API keys. Used by storefront frontends (web, mobile, headless) to fetch catalog data and create carts.\n\nThis spec is a placeholder. The real spec will be emitted from the Pydantic models in `magic-cms-catalog-serverless-apis` once the generator script lands.",
+    "contact": {
+      "name": "Magic CMS",
+      "url": "https://magic-cms.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.magic-cms.com",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "StorefrontKey": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Read-only access to the catalog."
+    },
+    {
+      "name": "Cart",
+      "description": "Shopping cart operations for end customers."
+    }
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "operationId": "listStorefrontProducts",
+        "summary": "List products",
+        "description": "Returns active products in the catalog, paginated. Filtered to the markets and catalogs scoped to the calling API key.",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "1-indexed page number.",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Items per page. Max 100.",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive substring match on product name and SKU.",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of products.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Product" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/products/{product_id}": {
+      "get": {
+        "operationId": "getStorefrontProduct",
+        "summary": "Get a product",
+        "description": "Returns a single product with full detail (variants, images, pricing).",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "description": "Product ObjectId.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The product.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": {
+            "description": "Product not found.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/cart": {
+      "post": {
+        "operationId": "createCart",
+        "summary": "Create a cart",
+        "description": "Creates a new shopping cart, optionally pre-populated with line items.",
+        "tags": ["Cart"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CartCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cart created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cart" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "StorefrontKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-storefront-key",
+        "description": "API key created on the Storefront API page in the Magic CMS dashboard. Format: `mck_<32 url-safe chars>`."
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid API key.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    },
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "description": "A catalog product. Mirrors the storefront-safe subset of the internal product document.",
+        "properties": {
+          "id": { "type": "string", "description": "Product ObjectId." },
+          "name": { "type": "string", "description": "Display name." },
+          "sku": { "type": "string", "description": "Stock-keeping unit. Auto-generated server-side if omitted on create (`<3-char prefix>-<4 hex>`)." },
+          "description": { "type": "string", "description": "Long-form description. Markdown allowed." },
+          "price": { "type": "number", "format": "float", "description": "Price in the catalog's base currency." },
+          "compare_at_price": { "type": "number", "format": "float", "nullable": true, "description": "Strike-through reference price. Null when not on sale." },
+          "images": {
+            "type": "array",
+            "description": "Ordered list of product images. First image with `is_primary: true` is the hero.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": { "type": "string", "format": "uri" },
+                "alt": { "type": "string" },
+                "is_primary": { "type": "boolean" }
+              }
+            }
+          },
+          "status": { "type": "string", "enum": ["draft", "active", "archived"], "description": "Lifecycle status." }
+        },
+        "required": ["id", "name", "price"]
+      },
+      "Pagination": {
+        "type": "object",
+        "description": "Standard pagination envelope shared across all list endpoints.",
+        "properties": {
+          "page": { "type": "integer", "description": "Current page number (1-indexed)." },
+          "size": { "type": "integer", "description": "Items per page." },
+          "total_items": { "type": "integer", "description": "Total matching records across all pages." },
+          "total_pages": { "type": "integer" },
+          "has_next": { "type": "boolean" },
+          "has_prev": { "type": "boolean" }
+        }
+      },
+      "CartCreate": {
+        "type": "object",
+        "description": "Payload for creating a cart.",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "Initial line items. Can be empty.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "product_id": { "type": "string", "description": "Product ObjectId." },
+                "quantity": { "type": "integer", "minimum": 1 }
+              },
+              "required": ["product_id", "quantity"]
+            }
+          }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "description": "A shopping cart.",
+        "properties": {
+          "id": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "product_id": { "type": "string" },
+                "name": { "type": "string" },
+                "price": { "type": "number" },
+                "quantity": { "type": "integer" }
+              }
+            }
+          },
+          "subtotal": { "type": "number", "description": "Sum of `price * quantity` across all items, in the cart's currency." },
+          "status": { "type": "string", "enum": ["open", "ordered", "abandoned"] }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "description": "Human-readable error message." },
+          "details": { "type": "object", "additionalProperties": true, "description": "Optional structured detail (e.g. Pydantic validation errors)." }
+        },
+        "required": ["error"]
+      }
+    }
+  }
+}
