@@ -57,6 +57,17 @@
           "source": "openapi.json",
           "directory": "api-reference"
         }
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog/2026-05-22"
+            ]
+          }
+        ]
       }
     ],
     "global": {
