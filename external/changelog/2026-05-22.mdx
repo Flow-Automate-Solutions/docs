@@ -1,0 +1,23 @@
+---
+title: "May 22, 2026"
+description: "Storefront API launches with full Products CRUD."
+---
+
+## New features
+
+### Storefront API: Products
+
+The public [Storefront API](/api-reference/products/list-products) is live. You can now manage your product catalog programmatically.
+
+- **List products** — paginated `GET /products` with filters for `search`, `status`, `product_type_id`, `stock`, `attribute_filters`, and `sort_by`.
+- **Create product** — `POST /products`.
+- **Get product** — `GET /products/{product_id}`.
+- **Update product** — `PUT /products/{product_id}`.
+- **Delete product** — `DELETE /products/{product_id}`.
+
+All endpoints are scoped to your tenant and authenticated with your storefront API key.
+
+## Updates
+
+- Product list responses now include consistent pagination metadata and clearer query parameter schemas.
+- Improved error responses across product endpoints (`400`, `401`, `404`, `409`, `500`).
