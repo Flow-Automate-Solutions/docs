@@ -117,13 +117,14 @@ jobs:
             echo "expected 401 from nginx without creds, got \$UNAUTH_CODE" >&2
             exit 1
           fi
+          # mint dev redirects "/" to the first nav page (e.g. /introduction), so
+          # 30x with creds means auth passed and the app is responding. 401/403/5xx fail.
           AUTH_CODE=\$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 \
             -H "Host: \$PREVIEW_DOMAIN" -u "\$BASIC_AUTH_USER:\$BASIC_AUTH_PASSWORD" "http://127.0.0.1/" || echo "000")
-          if [ "\$AUTH_CODE" != "200" ]; then
-            echo "expected 200 with creds, got \$AUTH_CODE" >&2
-            exit 1
-          fi
-          echo "nginx + auth: ok"
+          case "\$AUTH_CODE" in
+            200|301|302|307|308) echo "nginx + auth: ok (\$AUTH_CODE)" ;;
+            *) echo "expected 2xx/3xx with creds, got \$AUTH_CODE" >&2; exit 1 ;;
+          esac
           REMOTE
           )
 
