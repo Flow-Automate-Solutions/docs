@@ -13,10 +13,14 @@ set -euo pipefail
 : "${REMOTE_DIR:=/opt/magic-cms-docs}"
 
 # When run via SSM we're already root; otherwise prefix privileged ops with sudo.
+# SUDO_E is the env-preserving variant. Defined separately so they collapse to
+# nothing (not "-E") when we're already root.
 if [ "$(id -u)" -eq 0 ]; then
   SUDO=""
+  SUDO_E=""
 else
   SUDO="sudo"
+  SUDO_E="sudo -E"
 fi
 
 if command -v apt-get >/dev/null 2>&1; then
@@ -63,11 +67,11 @@ fi
 if ! command -v node >/dev/null 2>&1 || ! node -v | grep -q '^v20\.'; then
   case "$PKG" in
     apt)
-      curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO -E bash -
+      curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO_E bash -
       install_pkgs nodejs
       ;;
     dnf)
-      curl -fsSL https://rpm.nodesource.com/setup_20.x | $SUDO -E bash -
+      curl -fsSL https://rpm.nodesource.com/setup_20.x | $SUDO_E bash -
       install_pkgs nodejs
       ;;
   esac
