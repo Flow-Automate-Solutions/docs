@@ -1,0 +1,16 @@
+[Unit]
+Description=Magic CMS internal docs preview (mint dev)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__DEPLOY_USER__
+WorkingDirectory=/opt/magic-cms-docs/internal
+ExecStart=/usr/bin/mint dev
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=development
+
+[Install]
+WantedBy=multi-user.target

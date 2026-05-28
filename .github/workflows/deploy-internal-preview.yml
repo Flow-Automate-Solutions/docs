@@ -1,0 +1,58 @@
+name: Deploy internal docs preview to EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "internal/**"
+      - "_shared/**"
+      - "tools/**"
+      - "deploy/ec2/**"
+      - ".github/workflows/deploy-internal-preview.yml"
+
+concurrency:
+  group: deploy-internal-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      REMOTE_DIR: /opt/magic-cms-docs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync repo to EC2
+        run: |
+          rsync -az --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519' \
+            ./ "$EC2_USER@$EC2_HOST:$REMOTE_DIR/"
+
+      - name: Bootstrap host (idempotent)
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$EC2_USER@$EC2_HOST" \
+            "bash $REMOTE_DIR/deploy/ec2/bootstrap.sh"
+
+      - name: Deploy (rebuild OpenAPI, refresh systemd unit, restart service)
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$EC2_USER@$EC2_HOST" \
+            "bash $REMOTE_DIR/deploy/ec2/deploy.sh"
+
+      - name: Health check
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$EC2_USER@$EC2_HOST" \
+            'curl -fsS --max-time 10 --retry 5 --retry-delay 3 http://127.0.0.1:3000 > /dev/null'
