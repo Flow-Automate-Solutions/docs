@@ -61,6 +61,26 @@ jobs:
           export AWS_DEFAULT_REGION='${AWS_REGION}'
           S3_URI='s3://${S3_BUCKET}/${S3_PREFIX}/'
 
+          # Ensure AWS CLI v2 is present (Ubuntu AMIs don't ship it).
+          if ! command -v aws >/dev/null 2>&1; then
+            if command -v apt-get >/dev/null 2>&1; then
+              apt-get update -y
+              DEBIAN_FRONTEND=noninteractive apt-get install -y unzip curl
+            elif command -v dnf >/dev/null 2>&1; then
+              dnf install -y unzip curl
+            fi
+            ARCH=\$(uname -m)
+            case "\$ARCH" in
+              x86_64)        CLI_ARCH=x86_64 ;;
+              aarch64|arm64) CLI_ARCH=aarch64 ;;
+              *) echo "unsupported arch: \$ARCH" >&2; exit 1 ;;
+            esac
+            curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-\${CLI_ARCH}.zip" -o /tmp/awscliv2.zip
+            unzip -q -o /tmp/awscliv2.zip -d /tmp
+            /tmp/aws/install --update
+            rm -rf /tmp/aws /tmp/awscliv2.zip
+          fi
+
           mkdir -p "\$REMOTE_DIR"
           aws s3 sync "\$S3_URI" "\$REMOTE_DIR/" --delete --exclude '.git/*' --exclude 'node_modules/*'
           chown -R "\$DEPLOY_USER:\$DEPLOY_USER" "\$REMOTE_DIR"
