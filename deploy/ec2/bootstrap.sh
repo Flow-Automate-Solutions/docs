@@ -82,18 +82,16 @@ if ! command -v mint >/dev/null 2>&1; then
   $SUDO npm install -g mint
 fi
 
-# nginx + htpasswd tooling + certbot for Let's Encrypt
+# nginx + htpasswd tooling. TLS is terminated at Cloudflare, so no certbot.
 case "$PKG" in
   apt)
-    install_pkgs nginx apache2-utils certbot python3-certbot-nginx
+    install_pkgs nginx apache2-utils
     ;;
   dnf)
-    install_pkgs nginx httpd-tools certbot python3-certbot-nginx
+    install_pkgs nginx httpd-tools
     ;;
 esac
 
-# ACME challenge dir used by the renewal hook in the nginx config.
-$SUDO mkdir -p /var/www/letsencrypt
 $SUDO systemctl enable nginx
 
 # Deploy dir ownership

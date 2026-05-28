@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # Run on the EC2 host after bootstrap.
-# Regenerates the OpenAPI spec, refreshes the systemd unit, restarts mint dev,
-# and refreshes the nginx + Basic Auth + Let's Encrypt fronting.
+# Regenerates the OpenAPI spec, refreshes the systemd unit + nginx + htpasswd,
+# restarts mint dev, reloads nginx.
+#
+# TLS is terminated at Cloudflare (Universal SSL); the origin only serves
+# plain HTTP on port 80, gated by Basic Auth.
 #
 # Expects in env:
 #   DEPLOY_USER, REMOTE_DIR
-#   PREVIEW_DOMAIN          — DNS name pointed at this host (e.g. internal-docs-preview.magic-cms.com)
+#   PREVIEW_DOMAIN          — DNS name pointed at this host via Cloudflare
 #   BASIC_AUTH_USER         — htpasswd username
-#   BASIC_AUTH_PASSWORD     — htpasswd password (cleartext; hashed before writing to disk)
-#   LETSENCRYPT_EMAIL       — contact for Let's Encrypt registration
+#   BASIC_AUTH_PASSWORD     — htpasswd password (cleartext; hashed before writing)
 
 set -euo pipefail
 
@@ -17,7 +19,6 @@ set -euo pipefail
 : "${PREVIEW_DOMAIN:?PREVIEW_DOMAIN must be set}"
 : "${BASIC_AUTH_USER:?BASIC_AUTH_USER must be set}"
 : "${BASIC_AUTH_PASSWORD:?BASIC_AUTH_PASSWORD must be set}"
-: "${LETSENCRYPT_EMAIL:?LETSENCRYPT_EMAIL must be set}"
 
 if [ "$(id -u)" -eq 0 ]; then
   SUDO=""
@@ -67,21 +68,10 @@ if ! $SUDO cmp -s "$RENDERED_HTPASSWD" "$HTPASSWD_DST" 2>/dev/null; then
     || $SUDO install -m 0640 "$RENDERED_HTPASSWD" "$HTPASSWD_DST"
 fi
 
-# --- Let's Encrypt cert (first run only; certbot's systemd timer handles renewal) ---
-CERT_DIR="/etc/letsencrypt/live/$PREVIEW_DOMAIN"
-if [ ! -s "$CERT_DIR/fullchain.pem" ]; then
-  # nginx may not be holding port 80 yet (first deploy) — stop it just in case.
-  $SUDO systemctl stop nginx 2>/dev/null || true
-  $SUDO certbot certonly --standalone \
-    -d "$PREVIEW_DOMAIN" \
-    --non-interactive --agree-tos \
-    -m "$LETSENCRYPT_EMAIL"
-fi
-
 # --- nginx site config ---
 sed -e "s|__DOMAIN__|$PREVIEW_DOMAIN|g" "$NGINX_SRC" > "$RENDERED_NGINX"
 
-# On Debian/Ubuntu the default site grabs port 80 — disable it so our server_name wins.
+# On Debian/Ubuntu the default site grabs port 80 — disable it so ours wins.
 if [ -e /etc/nginx/sites-enabled/default ]; then
   $SUDO rm -f /etc/nginx/sites-enabled/default
 fi

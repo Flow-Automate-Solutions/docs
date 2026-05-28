@@ -1,6 +1,6 @@
 # EC2 internal docs preview
 
-Pipeline that runs `mint dev` for [internal/](../internal) on a long-running EC2 instance, fronted by **nginx + HTTP Basic Auth + Let's Encrypt TLS**, redeployed on every push to `main`. Transport between GitHub Actions and the host is **AWS SSM** (no SSH ingress) authenticated via **GitHub OIDC**.
+Pipeline that runs `mint dev` for [internal/](../internal) on a long-running EC2 instance, fronted by **nginx + HTTP Basic Auth**, with **TLS terminated at Cloudflare**. Redeployed on every push to `main`. Transport between GitHub Actions and the host is **AWS SSM** (no SSH ingress) authenticated via **GitHub OIDC**.
 
 Workflow: [.github/workflows/deploy-internal-preview.yml](../.github/workflows/deploy-internal-preview.yml).
 
@@ -15,27 +15,27 @@ Set these under **Settings → Secrets and variables → Actions → Secrets**:
 | `AWS_S3_BUCKET` | Bucket used to ship the repo to the host (artifact transfer only) |
 | `EC2_INSTANCE_ID` | `i-0123456789abcdef0` |
 | `EC2_DEPLOY_USER` | Linux user that owns `/opt/magic-cms-docs` — typically `ubuntu` or `ec2-user` |
-| `PREVIEW_DOMAIN` | DNS name pointed at the EC2's public IP, e.g. `internal-docs-preview.magic-cms.com` |
+| `PREVIEW_DOMAIN` | DNS name proxied through Cloudflare to the EC2, e.g. `internal-docs-preview.magic-cms.com` |
 | `PREVIEW_BASIC_AUTH_USER` | Shared username (e.g. `team`) |
 | `PREVIEW_BASIC_AUTH_PASSWORD` | Shared password (cleartext; hashed with bcrypt on the host before writing to disk) |
-| `LETSENCRYPT_EMAIL` | Contact email for Let's Encrypt registration / expiry warnings |
 
 ## One-time setup
 
-### 1. DNS
+### 1. DNS + Cloudflare proxy
 
-Create an `A` record for `PREVIEW_DOMAIN` pointing at the EC2's public IPv4 address. Let's Encrypt's HTTP-01 challenge needs this resolvable globally **before the first deploy** — otherwise certbot will fail and the deploy aborts.
+1. Create an `A` record for `PREVIEW_DOMAIN` pointing at the EC2's public IPv4 address.
+2. **Enable the Cloudflare proxy** (orange cloud) on that record.
+3. In Cloudflare → SSL/TLS → Overview, set the encryption mode to **Flexible** (browser→Cloudflare HTTPS, Cloudflare→origin HTTP). Cloudflare's Universal SSL handles the public cert automatically.
+4. Optional but recommended: Cloudflare → SSL/TLS → Edge Certificates → enable **Always Use HTTPS** so any plain-HTTP visitor is redirected to HTTPS at the edge.
 
 ### 2. Security group
 
 Inbound rules on the EC2:
 
-- TCP **80** from `0.0.0.0/0` — required for Let's Encrypt HTTP-01 challenge and for the HTTP→HTTPS redirect.
-- TCP **443** from `0.0.0.0/0` — the actual preview, gated by Basic Auth.
-- **Remove** the TCP 3000 rule if you added it earlier — mint dev now sits behind nginx on localhost.
-- **No SSH (22)** rule needed — operate the host via SSM Session Manager.
+- TCP **80** from **Cloudflare's IPv4 ranges** (<https://www.cloudflare.com/ips-v4>). This prevents anyone who learns the origin IP from bypassing Cloudflare. The list rarely changes; copy/paste the CIDRs.
+- **Remove** any prior TCP 3000 / TCP 443 / TCP 22 rules — they are no longer needed.
 
-Outbound: 443 to AWS endpoints (SSM, S3) and the public internet (apt/dnf, NodeSource, npm, Let's Encrypt).
+Outbound: 443 to AWS endpoints (SSM, S3) and the public internet (apt/dnf, NodeSource, npm).
 
 ### 3. AWS — OIDC + IAM role + instance profile
 
@@ -55,9 +55,9 @@ On push to `main` (paths: `internal/`, `_shared/`, `tools/`, `deploy/ec2/`):
 2. `aws ssm send-command` runs a single payload on the EC2 that:
    - Ensures AWS CLI v2 is installed.
    - Syncs the repo down to `/opt/magic-cms-docs`.
-   - Runs [bootstrap.sh](ec2/bootstrap.sh) — installs Node 20, Python 3.13, `mint`, nginx, certbot (idempotent).
-   - Runs [deploy.sh](ec2/deploy.sh) — regenerates `internal/openapi.json`, refreshes the systemd unit, refreshes the htpasswd file, obtains the TLS cert on first run, installs the nginx vhost, reloads nginx.
-   - Health-checks `http://127.0.0.1:3000` (mint dev) and `https://$PREVIEW_DOMAIN/` (expect 401 without creds, 200 with).
+   - Runs [bootstrap.sh](ec2/bootstrap.sh) — installs Node 20, Python 3.13, `mint`, nginx (idempotent).
+   - Runs [deploy.sh](ec2/deploy.sh) — regenerates `internal/openapi.json`, refreshes the systemd unit + htpasswd + nginx vhost, reloads nginx.
+   - Health-checks `http://127.0.0.1:3000` (mint dev) and `http://127.0.0.1/` via nginx with `Host: $PREVIEW_DOMAIN` (expect 401 without creds, 200 with). Local check — doesn't depend on Cloudflare.
 3. Workflow polls SSM until terminal status and echoes stdout/stderr into the Actions log.
 
 ## Viewing the preview
@@ -86,8 +86,6 @@ sudo systemctl status mint-internal       # mint dev
 sudo journalctl -u mint-internal -f
 sudo systemctl status nginx
 sudo nginx -t                             # validate config
-sudo certbot certificates                 # show cert + expiry
-sudo certbot renew --dry-run              # test renewal flow
 ```
 
 The unit template, nginx config, and htpasswd hash are all regenerated from the repo on each deploy — edit the files under [deploy/ec2/](ec2/), not the installed copies.

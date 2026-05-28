@@ -32,7 +32,6 @@ jobs:
       PREVIEW_DOMAIN: ${{ secrets.PREVIEW_DOMAIN }}
       BASIC_AUTH_USER: ${{ secrets.PREVIEW_BASIC_AUTH_USER }}
       BASIC_AUTH_PASSWORD: ${{ secrets.PREVIEW_BASIC_AUTH_PASSWORD }}
-      LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,7 +65,6 @@ jobs:
           export PREVIEW_DOMAIN='${PREVIEW_DOMAIN}'
           export BASIC_AUTH_USER='${BASIC_AUTH_USER}'
           export BASIC_AUTH_PASSWORD='${BASIC_AUTH_PASSWORD}'
-          export LETSENCRYPT_EMAIL='${LETSENCRYPT_EMAIL}'
           S3_URI='s3://${S3_BUCKET}/${S3_PREFIX}/'
 
           # Ensure AWS CLI v2 is present (Ubuntu AMIs don't ship it).
@@ -111,15 +109,16 @@ jobs:
             fi
           done
 
-          # Health check 2: nginx + basic auth + TLS via the public domain.
-          # 401 without creds confirms auth is enforced; 200 with creds confirms end-to-end.
-          UNAUTH_CODE=\$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "https://\$PREVIEW_DOMAIN/" || echo "000")
+          # Health check 2: nginx + basic auth via the origin (Host header set so
+          # the right vhost matches). Local check — doesn't depend on Cloudflare.
+          UNAUTH_CODE=\$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 \
+            -H "Host: \$PREVIEW_DOMAIN" "http://127.0.0.1/" || echo "000")
           if [ "\$UNAUTH_CODE" != "401" ]; then
-            echo "expected 401 from https://\$PREVIEW_DOMAIN without creds, got \$UNAUTH_CODE" >&2
+            echo "expected 401 from nginx without creds, got \$UNAUTH_CODE" >&2
             exit 1
           fi
           AUTH_CODE=\$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 \
-            -u "\$BASIC_AUTH_USER:\$BASIC_AUTH_PASSWORD" "https://\$PREVIEW_DOMAIN/" || echo "000")
+            -H "Host: \$PREVIEW_DOMAIN" -u "\$BASIC_AUTH_USER:\$BASIC_AUTH_PASSWORD" "http://127.0.0.1/" || echo "000")
           if [ "\$AUTH_CODE" != "200" ]; then
             echo "expected 200 with creds, got \$AUTH_CODE" >&2
             exit 1
