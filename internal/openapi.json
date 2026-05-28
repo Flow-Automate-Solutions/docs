@@ -28,6 +28,9 @@
       "name": "Catalogs"
     },
     {
+      "name": "Collections"
+    },
+    {
       "name": "Countries"
     },
     {
@@ -41,6 +44,9 @@
     },
     {
       "name": "Metafields"
+    },
+    {
+      "name": "Product Options"
     },
     {
       "name": "Product Types"
@@ -598,6 +604,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "fresh",
+            "in": "query",
+            "description": "When truthy, bypass the denormalized membership-sync cache and evaluate rules live.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -712,6 +726,321 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/collections": {
+      "get": {
+        "summary": "List collections",
+        "operationId": "listCollections",
+        "tags": [
+          "Collections"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CollectionType"
+            }
+          },
+          {
+            "name": "market_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "catalog_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name_asc",
+                "name_desc",
+                "created_at_asc",
+                "created_at_desc"
+              ],
+              "default": "created_at_desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create collection",
+        "operationId": "createCollection",
+        "tags": [
+          "Collections"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/collections/products-preview": {
+      "post": {
+        "summary": "Preview catalog-scoped products for a (saved or unsaved) collection",
+        "operationId": "previewCollectionProducts",
+        "tags": [
+          "Collections"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionProductsPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Paginated, catalog-scoped products that would qualify for the collection.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionProductsPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/collections/{collection_id}": {
+      "delete": {
+        "summary": "Delete collection",
+        "operationId": "deleteCollection",
+        "tags": [
+          "Collections"
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get collection",
+        "operationId": "getCollection",
+        "tags": [
+          "Collections"
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update collection",
+        "operationId": "updateCollection",
+        "tags": [
+          "Collections"
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
@@ -1203,6 +1532,275 @@
         }
       }
     },
+    "/markets/{market_id}/compliance/requirements": {
+      "get": {
+        "summary": "List market compliance requirements",
+        "operationId": "listMarketComplianceRequirements",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "in_progress",
+                "compliant",
+                "non_compliant"
+              ]
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "labeling",
+                "safety",
+                "environmental",
+                "data_privacy",
+                "taxation",
+                "import_export",
+                "accessibility"
+              ]
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_at_desc",
+                "created_at_asc",
+                "due_date_desc",
+                "due_date_asc",
+                "severity_desc",
+                "severity_asc"
+              ],
+              "default": "created_at_desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market compliance requirements list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketComplianceRequirementsListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create market compliance requirement",
+        "operationId": "createMarketComplianceRequirement",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketComplianceRequirementCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/markets/{market_id}/compliance/requirements/{requirement_id}": {
+      "delete": {
+        "summary": "Delete market compliance requirement",
+        "operationId": "deleteMarketComplianceRequirement",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requirement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update market compliance requirement",
+        "operationId": "updateMarketComplianceRequirement",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requirement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketComplianceRequirementUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
     "/markets/{market_id}/default": {
       "put": {
         "summary": "Set default market",
@@ -1252,6 +1850,210 @@
                 "$ref": "#/components/schemas/MarketSetDefault"
               }
             }
+          }
+        }
+      }
+    },
+    "/markets/{market_id}/sales": {
+      "get": {
+        "summary": "List market sales",
+        "operationId": "listMarketSales",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market sales list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketSalesListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create market sale",
+        "operationId": "createMarketSale",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketSaleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/markets/{market_id}/sales/{sale_id}": {
+      "delete": {
+        "summary": "Delete market sale",
+        "operationId": "deleteMarketSale",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update market sale",
+        "operationId": "updateMarketSale",
+        "tags": [
+          "Markets"
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketSaleUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -1673,20 +2475,20 @@
         ]
       }
     },
-    "/product-types": {
+    "/product-options": {
       "get": {
-        "summary": "List product types",
-        "operationId": "listProductTypes",
+        "summary": "List product options",
+        "operationId": "listProductOptions",
         "tags": [
-          "Product Types"
+          "Product Options"
         ],
         "responses": {
           "200": {
-            "description": "Product type list.",
+            "description": "Product option list.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTypeListResponse"
+                  "$ref": "#/components/schemas/ProductOptionListResponse"
                 }
               }
             }
@@ -1729,6 +2531,20 @@
             }
           },
           {
+            "name": "market_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "sort_by",
             "in": "query",
             "schema": {
@@ -1739,6 +2555,221 @@
                 "created_at_asc",
                 "created_at_desc"
               ]
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create product option",
+        "operationId": "createProductOption",
+        "tags": [
+          "Product Options"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductOptionCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product-options/{option_id}": {
+      "delete": {
+        "summary": "Delete product option",
+        "operationId": "deleteProductOption",
+        "tags": [
+          "Product Options"
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "option_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get product option",
+        "operationId": "getProductOption",
+        "tags": [
+          "Product Options"
+        ],
+        "responses": {
+          "200": {
+            "description": "Product option.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductOption"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "option_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update product option",
+        "operationId": "updateProductOption",
+        "tags": [
+          "Product Options"
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "option_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductOptionUpdate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product-types": {
+      "get": {
+        "summary": "List product types",
+        "operationId": "listProductTypes",
+        "tags": [
+          "Product Types"
+        ],
+        "responses": {
+          "200": {
+            "description": "Product type list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductTypeListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ]
@@ -1779,144 +2810,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProductTypeCreate"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/product-types/{product_type_id}": {
-      "delete": {
-        "summary": "Delete product type",
-        "operationId": "deleteProductType",
-        "tags": [
-          "Product Types"
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
-        },
-        "parameters": [
-          {
-            "name": "product_type_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      },
-      "get": {
-        "summary": "Get product type",
-        "operationId": "getProductType",
-        "tags": [
-          "Product Types"
-        ],
-        "responses": {
-          "200": {
-            "description": "Product type.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProductType"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
-        },
-        "parameters": [
-          {
-            "name": "product_type_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      },
-      "put": {
-        "summary": "Update product type",
-        "operationId": "updateProductType",
-        "tags": [
-          "Product Types"
-        ],
-        "responses": {
-          "200": {
-            "description": "Updated.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/Conflict"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
-        },
-        "parameters": [
-          {
-            "name": "product_type_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProductTypeUpdate"
               }
             }
           }
@@ -1992,21 +2885,15 @@
             }
           },
           {
-            "name": "product_type_id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "stock",
             "in": "query",
             "schema": {
               "type": "string",
               "enum": [
-                "in_stock",
-                "low",
-                "out"
+                "instock",
+                "lowstock",
+                "outofstock",
+                "onbackorder"
               ]
             }
           },
@@ -2020,6 +2907,20 @@
           },
           {
             "name": "sort_by",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "product_type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
             "in": "query",
             "schema": {
               "type": "string"
@@ -2064,6 +2965,704 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProductCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/bundles": {
+      "get": {
+        "summary": "List product bundles",
+        "operationId": "listProductBundles",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "active",
+                "archived"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product bundles list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductBundlesListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create product bundle",
+        "operationId": "createProductBundle",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductBundleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products/bundles/{bundle_id}": {
+      "delete": {
+        "summary": "Delete product bundle",
+        "operationId": "deleteProductBundle",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "bundle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update product bundle",
+        "operationId": "updateProductBundle",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "bundle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductBundleUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products/bundles/{bundle_id}/items": {
+      "get": {
+        "summary": "List bundle items",
+        "operationId": "listProductBundleItems",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "bundle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bundle items list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductBundleItemsListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create bundle item",
+        "operationId": "createProductBundleItem",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "bundle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductBundleItemCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products/bundles/{bundle_id}/items/{item_id}": {
+      "delete": {
+        "summary": "Delete bundle item",
+        "operationId": "deleteProductBundleItem",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "bundle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update bundle item",
+        "operationId": "updateProductBundleItem",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "bundle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductBundleItemUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products/duplicate": {
+      "post": {
+        "summary": "Duplicate product",
+        "operationId": "duplicateProduct",
+        "tags": [
+          "Products",
+          "public"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductDuplicateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/reviews": {
+      "get": {
+        "summary": "List product reviews",
+        "operationId": "listProductReviews",
+        "tags": [
+          "Products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Product reviews list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductReviewListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 15
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ReviewStatus"
+            }
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_at_asc",
+                "created_at_desc",
+                "rating_asc",
+                "rating_desc"
+              ],
+              "default": "created_at_desc"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create product review (storefront)",
+        "operationId": "createProductReview",
+        "tags": [
+          "Products"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductReviewCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/reviews/{review_id}": {
+      "delete": {
+        "summary": "Delete product review",
+        "operationId": "deleteProductReview",
+        "tags": [
+          "Products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get product review",
+        "operationId": "getProductReview",
+        "tags": [
+          "Products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Product review.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductReview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update product review moderation",
+        "operationId": "updateProductReview",
+        "tags": [
+          "Products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductReviewUpdate"
               }
             }
           }
@@ -2838,6 +4437,21 @@
           }
         ]
       },
+      "CatalogProductStats": {
+        "type": "object",
+        "properties": {
+          "total_products": {
+            "type": "integer"
+          },
+          "total_variants": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_products",
+          "total_variants"
+        ]
+      },
       "CatalogProductsListResponse": {
         "type": "object",
         "properties": {
@@ -2849,18 +4463,39 @@
           },
           "pagination": {
             "$ref": "#/components/schemas/Pagination"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/CatalogProductStats"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "description": "True when the denormalized membership-sync cache has not yet caught up with the latest rule/catalog edits."
           }
         },
         "required": [
           "items",
-          "pagination"
+          "pagination",
+          "stats",
+          "is_stale"
         ]
       },
       "CatalogRuleCondition": {
         "type": "object",
         "properties": {
           "op": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "eq",
+              "neq",
+              "contains",
+              "not_contains",
+              "starts_with",
+              "ends_with",
+              "gt",
+              "lt",
+              "gte",
+              "lte"
+            ]
           },
           "name": {
             "type": "string"
@@ -2903,12 +4538,6 @@
       "CatalogRuleFieldOptionsResponse": {
         "type": "object",
         "properties": {
-          "product_type_id": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "vendor": {
             "type": "array",
             "items": {
@@ -2935,10 +4564,16 @@
                 "type": "string"
               }
             }
+          },
+          "product_type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
-          "product_type_id",
+          "product_type",
           "vendor",
           "category",
           "taxonomy_names",
@@ -3064,6 +4699,269 @@
           "markets",
           "schedules"
         ]
+      },
+      "Collection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CollectionType"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RuleConditions"
+          },
+          "product_count": {
+            "type": "integer"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "catalog_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manual_product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "description",
+          "image",
+          "type",
+          "rules",
+          "product_count",
+          "manual_product_ids",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CollectionCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CollectionType"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RuleConditions"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "catalog_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manual_product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "CollectionListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Collection"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "items",
+          "pagination"
+        ]
+      },
+      "CollectionProductsPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "catalog_id": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CollectionType"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RuleConditions"
+          },
+          "manual_product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "search": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "catalog_id"
+        ]
+      },
+      "CollectionProductsPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogProduct"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/CatalogProductStats"
+          },
+          "is_stale": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "pagination",
+          "stats",
+          "is_stale"
+        ]
+      },
+      "CollectionType": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "smart"
+        ]
+      },
+      "CollectionUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CollectionType"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RuleConditions"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "catalog_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manual_product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "Country": {
         "type": "object",
@@ -3235,6 +5133,232 @@
           "id"
         ],
         "additionalProperties": true
+      },
+      "MarketComplianceRequirement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "market_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "regulation": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "labeling",
+              "safety",
+              "environmental",
+              "data_privacy",
+              "taxation",
+              "import_export",
+              "accessibility"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "compliant",
+              "non_compliant"
+            ]
+          },
+          "due_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "market_id",
+          "name",
+          "description",
+          "regulation",
+          "region",
+          "category",
+          "severity",
+          "status",
+          "due_date",
+          "notes",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "MarketComplianceRequirementCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "default": ""
+          },
+          "regulation": {
+            "type": "string",
+            "default": ""
+          },
+          "region": {
+            "type": "string",
+            "default": ""
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "labeling",
+              "safety",
+              "environmental",
+              "data_privacy",
+              "taxation",
+              "import_export",
+              "accessibility"
+            ],
+            "default": "labeling"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "compliant",
+              "non_compliant"
+            ],
+            "default": "pending"
+          },
+          "due_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          },
+          "notes": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "MarketComplianceRequirementUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string"
+          },
+          "regulation": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "labeling",
+              "safety",
+              "environmental",
+              "data_privacy",
+              "taxation",
+              "import_export",
+              "accessibility"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "compliant",
+              "non_compliant"
+            ]
+          },
+          "due_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "MarketComplianceRequirementsListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketComplianceRequirement"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
       },
       "MarketCreate": {
         "additionalProperties": false,
@@ -3456,6 +5580,331 @@
           "items",
           "pagination"
         ]
+      },
+      "MarketSale": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "cms_id": {
+            "type": "string",
+            "title": "Cms Id"
+          },
+          "market_id": {
+            "type": "string",
+            "title": "Market Id"
+          },
+          "catalog_id": {
+            "type": "string",
+            "title": "Catalog Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "discount_type": {
+            "type": "string",
+            "enum": [
+              "percentage",
+              "fixed"
+            ],
+            "title": "Discount Type"
+          },
+          "discount_value": {
+            "type": "number",
+            "title": "Discount Value"
+          },
+          "excluded_product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Excluded Product Ids"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "ended"
+            ],
+            "title": "Status"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketSalePeriod"
+            },
+            "title": "Periods"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          }
+        },
+        "required": [
+          "id",
+          "market_id",
+          "catalog_id",
+          "name",
+          "discount_type",
+          "discount_value",
+          "status",
+          "periods",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "MarketSale",
+        "type": "object"
+      },
+      "MarketSaleCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "catalog_id": {
+            "type": "string",
+            "title": "Catalog Id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "title": "Name"
+          },
+          "discount_type": {
+            "type": "string",
+            "enum": [
+              "percentage",
+              "fixed"
+            ],
+            "title": "Discount Type"
+          },
+          "discount_value": {
+            "type": "number",
+            "minimum": 0,
+            "title": "Discount Value"
+          },
+          "excluded_product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Excluded Product Ids"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "ended"
+            ],
+            "default": "draft",
+            "title": "Status"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketSalePeriod"
+            },
+            "title": "Periods"
+          }
+        },
+        "required": [
+          "catalog_id",
+          "name",
+          "discount_type",
+          "discount_value"
+        ],
+        "title": "MarketSaleCreate",
+        "type": "object"
+      },
+      "MarketSalePeriod": {
+        "additionalProperties": false,
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "title": "End Date"
+          },
+          "label": {
+            "type": "string",
+            "default": "",
+            "title": "Label"
+          },
+          "discount_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "percentage",
+                  "fixed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Discount Type"
+          },
+          "discount_value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Discount Value"
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "title": "MarketSalePeriod",
+        "type": "object"
+      },
+      "MarketSaleUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "catalog_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Catalog Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          },
+          "discount_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "percentage",
+                  "fixed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Discount Type"
+          },
+          "discount_value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Discount Value"
+          },
+          "excluded_product_ids": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Excluded Product Ids"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "active",
+                  "ended"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MarketSalePeriod"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Periods"
+          }
+        },
+        "title": "MarketSaleUpdate",
+        "type": "object"
+      },
+      "MarketSalesListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketSale"
+            },
+            "title": "Items"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MarketSalesListResponse",
+        "type": "object"
       },
       "MarketSetDefault": {
         "additionalProperties": false,
@@ -4185,23 +6634,573 @@
       },
       "ProductAttribute": {
         "properties": {
+          "id": {
+            "minimum": 0,
+            "title": "Id",
+            "type": "integer"
+          },
           "name": {
             "title": "Name",
             "type": "string"
           },
-          "values": {
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "options": {
             "items": {
-              "type": "string"
+              "properties": {
+                "id": {
+                  "minimum": 0,
+                  "title": "Id",
+                  "type": "integer"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "slug": {
+                  "title": "Slug",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ],
+              "type": "object"
             },
-            "title": "Values",
+            "title": "Options",
             "type": "array"
           }
         },
         "required": [
-          "name"
+          "id",
+          "name",
+          "slug"
         ],
         "title": "ProductAttribute",
         "type": "object"
+      },
+      "ProductBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "archived"
+            ]
+          },
+          "pricing_strategy": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "calculated",
+              "cheapest_free"
+            ]
+          },
+          "fixed_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "discount_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "image": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductBundleItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status",
+          "pricing_strategy",
+          "created_at",
+          "updated_at",
+          "items"
+        ],
+        "title": "ProductBundle",
+        "type": "object"
+      },
+      "ProductBundleCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "archived"
+            ],
+            "default": "draft"
+          },
+          "pricing_strategy": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "calculated",
+              "cheapest_free"
+            ],
+            "default": "calculated"
+          },
+          "fixed_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "discount_percent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "image": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ],
+        "title": "ProductBundleCreate",
+        "type": "object"
+      },
+      "ProductBundleItem": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "variant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "sort_order": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "bundle_id",
+          "product_id",
+          "quantity",
+          "sort_order",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProductBundleItem",
+        "type": "object"
+      },
+      "ProductBundleItemCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "variant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "title": "ProductBundleItemCreate",
+        "type": "object"
+      },
+      "ProductBundleItemUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "variant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sort_order": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "ProductBundleItemUpdate",
+        "type": "object"
+      },
+      "ProductBundleItemsListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductBundleItem"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProductBundleItemsListResponse",
+        "type": "object"
+      },
+      "ProductBundleUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "active",
+                  "archived"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "pricing_strategy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fixed",
+                  "calculated",
+                  "cheapest_free"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "fixed_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "discount_percent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "image": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "ProductBundleUpdate",
+        "type": "object"
+      },
+      "ProductBundlesListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductBundle"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProductBundlesListResponse",
+        "type": "object"
+      },
+      "ProductCollection": {
+        "properties": {
+          "_id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "External Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "_id",
+          "id",
+          "name",
+          "slug"
+        ],
+        "title": "ProductCollection",
+        "type": "object",
+        "additionalProperties": false
       },
       "ProductCreate": {
         "$defs": {
@@ -4336,7 +7335,7 @@
                 "title": "Price",
                 "type": "number"
               },
-              "compare_at_price": {
+              "regular_price": {
                 "anyOf": [
                   {
                     "type": "number"
@@ -4346,19 +7345,39 @@
                   }
                 ],
                 "default": null,
-                "title": "Compare At Price"
+                "title": "Regular Price"
               },
-              "stock": {
+              "stock_quantity": {
                 "default": 0,
-                "title": "Stock",
+                "title": "Stock Quantity",
                 "type": "integer"
               },
-              "options": {
-                "additionalProperties": {
-                  "type": "string"
+              "attributes": {
+                "items": {
+                  "properties": {
+                    "attribute": {
+                      "title": "Attribute",
+                      "type": "string"
+                    },
+                    "attribute_id": {
+                      "minimum": 0,
+                      "title": "Attribute Id",
+                      "type": "integer"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "attribute",
+                    "attribute_id",
+                    "value"
+                  ],
+                  "type": "object"
                 },
-                "title": "Options",
-                "type": "object"
+                "title": "Attributes",
+                "type": "array"
               },
               "image": {
                 "anyOf": [
@@ -4551,7 +7570,7 @@
             "title": "Price",
             "type": "number"
           },
-          "compare_at_price": {
+          "regular_price": {
             "anyOf": [
               {
                 "minimum": 0,
@@ -4562,7 +7581,7 @@
               }
             ],
             "default": null,
-            "title": "Compare At Price"
+            "title": "Regular Price"
           },
           "cost_per_item": {
             "anyOf": [
@@ -4603,7 +7622,7 @@
           },
           "collections": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/ProductCollection"
             },
             "title": "Collections",
             "type": "array"
@@ -4626,18 +7645,6 @@
             ],
             "default": null,
             "title": "Vendor"
-          },
-          "product_type_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Product Type Id"
           },
           "attributes": {
             "items": {
@@ -4667,13 +7674,13 @@
             "title": "Videos",
             "type": "array"
           },
-          "variant_type": {
-            "default": "single",
+          "type": {
+            "default": "simple",
             "enum": [
-              "single",
-              "multiple"
+              "simple",
+              "variable"
             ],
-            "title": "Variant Type",
+            "title": "Type",
             "type": "string"
           },
           "variations": {
@@ -4683,15 +7690,15 @@
             "title": "Variations",
             "type": "array"
           },
-          "track_inventory": {
+          "manage_stock": {
             "default": false,
-            "title": "Track Inventory",
+            "title": "Manage Stock",
             "type": "boolean"
           },
-          "stock": {
+          "stock_quantity": {
             "default": 0,
             "minimum": 0,
-            "title": "Stock",
+            "title": "Stock Quantity",
             "type": "integer"
           },
           "low_stock_threshold": {
@@ -4804,12 +7811,26 @@
             ],
             "default": null,
             "title": "Scheduled At"
+          },
+          "product_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Product Type"
           }
         },
         "required": [
+          "magic_product_id",
           "name",
           "fulfillment_type",
-          "price"
+          "price",
+          "stock_status"
         ],
         "title": "ProductCreate",
         "type": "object"
@@ -4835,6 +7856,19 @@
           "height"
         ],
         "title": "ProductDimensions",
+        "type": "object"
+      },
+      "ProductDuplicateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "title": "ProductDuplicateRequest",
         "type": "object"
       },
       "ProductImage": {
@@ -4910,25 +7944,14 @@
             "default": null,
             "title": "Status"
           },
-          "product_type_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Product Type Id"
-          },
           "stock": {
             "anyOf": [
               {
                 "enum": [
-                  "in_stock",
-                  "low",
-                  "out"
+                  "instock",
+                  "lowstock",
+                  "outofstock",
+                  "onbackorder"
                 ],
                 "type": "string"
               },
@@ -4950,6 +7973,30 @@
             "default": "name_asc",
             "title": "Sort By",
             "type": "string"
+          },
+          "product_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Product Type"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Category"
           }
         },
         "title": "ProductListQuery",
@@ -4972,6 +8019,505 @@
           "items",
           "pagination"
         ]
+      },
+      "ProductMedia": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "alt": {
+            "default": "",
+            "title": "Alt",
+            "type": "string"
+          },
+          "type": {
+            "default": "image",
+            "enum": [
+              "image",
+              "video"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "is_primary": {
+            "default": false,
+            "title": "Is Primary",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "url"
+        ],
+        "title": "ProductMedia",
+        "type": "object"
+      },
+      "ProductOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": true
+      },
+      "ProductOptionCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "title": "Name"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "checkbox",
+              "text",
+              "select"
+            ],
+            "default": "checkbox",
+            "title": "Type"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "title": "Price"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Values"
+          },
+          "applies_to": {
+            "type": "string",
+            "enum": [
+              "all",
+              "specific"
+            ],
+            "default": "all",
+            "title": "Applies To"
+          },
+          "product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Product Ids"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true,
+            "title": "Active"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Market Id"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ProductOptionCreate",
+        "type": "object"
+      },
+      "ProductOptionListQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50,
+            "title": "Size"
+          },
+          "search": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Search"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Market Id"
+          },
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Active"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "name_asc",
+              "name_desc",
+              "created_at_asc",
+              "created_at_desc"
+            ],
+            "default": "created_at_desc",
+            "title": "Sort By"
+          }
+        },
+        "title": "ProductOptionListQuery",
+        "type": "object"
+      },
+      "ProductOptionListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductOption"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "items",
+          "pagination"
+        ]
+      },
+      "ProductOptionUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "checkbox",
+                  "text",
+                  "select"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Type"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Price"
+          },
+          "values": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Values"
+          },
+          "applies_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "specific"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Applies To"
+          },
+          "product_ids": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Product Ids"
+          },
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Active"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Market Id"
+          }
+        },
+        "title": "ProductOptionUpdate",
+        "type": "object"
+      },
+      "ProductReview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "customer_name": {
+            "type": "string"
+          },
+          "customer_email": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "is_verified": {
+            "type": "boolean"
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "admin_reply": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "admin_reply_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "cms_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "product_id",
+          "customer_name",
+          "customer_email",
+          "rating",
+          "title",
+          "body",
+          "status",
+          "is_verified",
+          "photos",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": true
+      },
+      "ProductReviewCreate": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "customer_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "customer_email": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 320
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "product_id",
+          "customer_name",
+          "customer_email",
+          "rating",
+          "title",
+          "body"
+        ],
+        "additionalProperties": false,
+        "description": "Storefront submission payload. Status is forced to pending by server."
+      },
+      "ProductReviewListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductReview"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "items",
+          "pagination"
+        ]
+      },
+      "ProductReviewUpdate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "admin_reply": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
       },
       "ProductSeo": {
         "properties": {
@@ -4997,14 +8543,17 @@
       "ProductType": {
         "type": "object",
         "properties": {
-          "id": {
+          "product_type": {
+            "type": "string"
+          },
+          "category": {
             "type": "string"
           }
         },
         "required": [
-          "id"
-        ],
-        "additionalProperties": true
+          "product_type",
+          "category"
+        ]
       },
       "ProductTypeCreate": {
         "$defs": {
@@ -5110,19 +8659,6 @@
       "ProductTypeListQuery": {
         "additionalProperties": false,
         "properties": {
-          "page": {
-            "default": 1,
-            "minimum": 1,
-            "title": "Page",
-            "type": "integer"
-          },
-          "size": {
-            "default": 50,
-            "maximum": 100,
-            "minimum": 1,
-            "title": "Size",
-            "type": "integer"
-          },
           "search": {
             "anyOf": [
               {
@@ -5134,17 +8670,6 @@
             ],
             "default": null,
             "title": "Search"
-          },
-          "sort_by": {
-            "default": "name_asc",
-            "enum": [
-              "name_asc",
-              "name_desc",
-              "created_at_asc",
-              "created_at_desc"
-            ],
-            "title": "Sort By",
-            "type": "string"
           }
         },
         "title": "ProductTypeListQuery",
@@ -5158,14 +8683,10 @@
             "items": {
               "$ref": "#/components/schemas/ProductType"
             }
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
           }
         },
         "required": [
-          "items",
-          "pagination"
+          "items"
         ]
       },
       "ProductTypeUpdate": {
@@ -5422,7 +8943,7 @@
                 "title": "Price",
                 "type": "number"
               },
-              "compare_at_price": {
+              "regular_price": {
                 "anyOf": [
                   {
                     "type": "number"
@@ -5432,19 +8953,39 @@
                   }
                 ],
                 "default": null,
-                "title": "Compare At Price"
+                "title": "Regular Price"
               },
-              "stock": {
+              "stock_quantity": {
                 "default": 0,
-                "title": "Stock",
+                "title": "Stock Quantity",
                 "type": "integer"
               },
-              "options": {
-                "additionalProperties": {
-                  "type": "string"
+              "attributes": {
+                "items": {
+                  "properties": {
+                    "attribute": {
+                      "title": "Attribute",
+                      "type": "string"
+                    },
+                    "attribute_id": {
+                      "minimum": 0,
+                      "title": "Attribute Id",
+                      "type": "integer"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "attribute",
+                    "attribute_id",
+                    "value"
+                  ],
+                  "type": "object"
                 },
-                "title": "Options",
-                "type": "object"
+                "title": "Attributes",
+                "type": "array"
               },
               "image": {
                 "anyOf": [
@@ -5676,7 +9217,7 @@
             "default": null,
             "title": "Price"
           },
-          "compare_at_price": {
+          "regular_price": {
             "anyOf": [
               {
                 "minimum": 0,
@@ -5687,7 +9228,7 @@
               }
             ],
             "default": null,
-            "title": "Compare At Price"
+            "title": "Regular Price"
           },
           "cost_per_item": {
             "anyOf": [
@@ -5745,7 +9286,7 @@
             "anyOf": [
               {
                 "items": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/ProductCollection"
                 },
                 "type": "array"
               },
@@ -5782,18 +9323,6 @@
             ],
             "default": null,
             "title": "Vendor"
-          },
-          "product_type_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Product Type Id"
           },
           "attributes": {
             "anyOf": [
@@ -5855,12 +9384,12 @@
             "default": null,
             "title": "Videos"
           },
-          "variant_type": {
+          "type": {
             "anyOf": [
               {
                 "enum": [
-                  "single",
-                  "multiple"
+                  "simple",
+                  "variable"
                 ],
                 "type": "string"
               },
@@ -5869,7 +9398,7 @@
               }
             ],
             "default": null,
-            "title": "Variant Type"
+            "title": "Type"
           },
           "variations": {
             "anyOf": [
@@ -5886,7 +9415,7 @@
             "default": null,
             "title": "Variations"
           },
-          "track_inventory": {
+          "manage_stock": {
             "anyOf": [
               {
                 "type": "boolean"
@@ -5896,9 +9425,9 @@
               }
             ],
             "default": null,
-            "title": "Track Inventory"
+            "title": "Manage Stock"
           },
-          "stock": {
+          "stock_quantity": {
             "anyOf": [
               {
                 "minimum": 0,
@@ -5909,7 +9438,7 @@
               }
             ],
             "default": null,
-            "title": "Stock"
+            "title": "Stock Quantity"
           },
           "low_stock_threshold": {
             "anyOf": [
@@ -6072,6 +9601,18 @@
             ],
             "default": null,
             "title": "Scheduled At"
+          },
+          "product_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Product Type"
           }
         },
         "title": "ProductUpdate",
@@ -6095,7 +9636,7 @@
             "title": "Price",
             "type": "number"
           },
-          "compare_at_price": {
+          "regular_price": {
             "anyOf": [
               {
                 "type": "number"
@@ -6105,31 +9646,56 @@
               }
             ],
             "default": null,
-            "title": "Compare At Price"
+            "title": "Regular Price"
           },
-          "stock": {
+          "stock_quantity": {
             "default": 0,
-            "title": "Stock",
+            "title": "Stock Quantity",
             "type": "integer"
           },
-          "options": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "title": "Options",
-            "type": "object"
-          },
-          "image": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+          "stock_status": {
+            "enum": [
+              "instock",
+              "lowstock",
+              "outofstock",
+              "onbackorder"
             ],
-            "default": null,
-            "title": "Image"
+            "title": "Stock Status",
+            "type": "string"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMedia"
+            },
+            "title": "Media",
+            "type": "array"
+          },
+          "attributes": {
+            "items": {
+              "properties": {
+                "attribute": {
+                  "title": "Attribute",
+                  "type": "string"
+                },
+                "attribute_id": {
+                  "minimum": 0,
+                  "title": "Attribute Id",
+                  "type": "integer"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "attribute",
+                "attribute_id",
+                "value"
+              ],
+              "type": "object"
+            },
+            "title": "Attributes",
+            "type": "array"
           },
           "tags": {
             "items": {
@@ -6141,6 +9707,11 @@
           "is_active": {
             "default": true,
             "title": "Is Active",
+            "type": "boolean"
+          },
+          "on_sale": {
+            "default": false,
+            "title": "On Sale",
             "type": "boolean"
           },
           "shipping": {
@@ -6159,7 +9730,8 @@
           "id",
           "name",
           "sku",
-          "price"
+          "price",
+          "stock_status"
         ],
         "title": "ProductVariation",
         "type": "object"
@@ -6188,6 +9760,15 @@
         ],
         "title": "ProductVideo",
         "type": "object"
+      },
+      "ReviewStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "approved",
+          "rejected",
+          "flagged"
+        ]
       },
       "Rule": {
         "type": "object",
@@ -6259,7 +9840,19 @@
             "type": "string"
           },
           "op": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "eq",
+              "neq",
+              "contains",
+              "not_contains",
+              "starts_with",
+              "ends_with",
+              "gt",
+              "lt",
+              "gte",
+              "lte"
+            ]
           },
           "value": {
             "anyOf": [
