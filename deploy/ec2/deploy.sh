@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
-# Run on the EC2 host after rsync + bootstrap.
+# Run on the EC2 host after bootstrap.
 # Regenerates the OpenAPI spec, refreshes the systemd unit, restarts mint dev.
+#
+# Expects DEPLOY_USER and REMOTE_DIR in env.
 
 set -euo pipefail
 
-REMOTE_DIR=/opt/magic-cms-docs
+: "${DEPLOY_USER:?DEPLOY_USER must be set}"
+: "${REMOTE_DIR:=/opt/magic-cms-docs}"
+
+if [ "$(id -u)" -eq 0 ]; then
+  SUDO=""
+else
+  SUDO="sudo"
+fi
+
 UNIT_SRC="$REMOTE_DIR/deploy/ec2/mint-internal.service"
 UNIT_DST=/etc/systemd/system/mint-internal.service
 RENDERED=$(mktemp)
@@ -12,25 +22,26 @@ trap 'rm -f "$RENDERED"' EXIT
 
 cd "$REMOTE_DIR"
 
+# Regenerate the merged internal OpenAPI spec.
 python3.13 tools/build_openapi.py
 
-MINT_BIN="$(command -v mint)"
+MINT_BIN="$(command -v mint || true)"
 if [ -z "$MINT_BIN" ]; then
   echo "mint CLI not found on PATH — bootstrap.sh should have installed it" >&2
   exit 1
 fi
 
 sed \
-  -e "s|__DEPLOY_USER__|$USER|g" \
+  -e "s|__DEPLOY_USER__|$DEPLOY_USER|g" \
   -e "s|^ExecStart=.*|ExecStart=$MINT_BIN dev|" \
   "$UNIT_SRC" > "$RENDERED"
 
-if ! sudo cmp -s "$RENDERED" "$UNIT_DST" 2>/dev/null; then
-  sudo install -m 0644 "$RENDERED" "$UNIT_DST"
-  sudo systemctl daemon-reload
+if ! $SUDO cmp -s "$RENDERED" "$UNIT_DST" 2>/dev/null; then
+  $SUDO install -m 0644 "$RENDERED" "$UNIT_DST"
+  $SUDO systemctl daemon-reload
 fi
 
-sudo systemctl enable mint-internal.service
-sudo systemctl restart mint-internal.service
+$SUDO systemctl enable mint-internal.service
+$SUDO systemctl restart mint-internal.service
 
 echo "deploy.sh: ok"
