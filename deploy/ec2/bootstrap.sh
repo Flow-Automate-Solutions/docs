@@ -32,7 +32,7 @@ install_pkgs() {
   case "$PKG" in
     apt)
       $SUDO apt-get update -y
-      $SUDO DEBIAN_FRONTEND=noninteractive apt-get install -y "$@"
+      $SUDO env DEBIAN_FRONTEND=noninteractive apt-get install -y "$@"
       ;;
     dnf)
       $SUDO dnf install -y "$@"
