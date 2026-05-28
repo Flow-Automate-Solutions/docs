@@ -29,6 +29,10 @@ jobs:
       INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
       DEPLOY_USER: ${{ secrets.EC2_DEPLOY_USER }}
       REMOTE_DIR: /opt/magic-cms-docs
+      PREVIEW_DOMAIN: ${{ secrets.PREVIEW_DOMAIN }}
+      BASIC_AUTH_USER: ${{ secrets.PREVIEW_BASIC_AUTH_USER }}
+      BASIC_AUTH_PASSWORD: ${{ secrets.PREVIEW_BASIC_AUTH_PASSWORD }}
+      LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,6 +63,10 @@ jobs:
           export DEPLOY_USER='${DEPLOY_USER}'
           export REMOTE_DIR='${REMOTE_DIR}'
           export AWS_DEFAULT_REGION='${AWS_REGION}'
+          export PREVIEW_DOMAIN='${PREVIEW_DOMAIN}'
+          export BASIC_AUTH_USER='${BASIC_AUTH_USER}'
+          export BASIC_AUTH_PASSWORD='${BASIC_AUTH_PASSWORD}'
+          export LETSENCRYPT_EMAIL='${LETSENCRYPT_EMAIL}'
           S3_URI='s3://${S3_BUCKET}/${S3_PREFIX}/'
 
           # Ensure AWS CLI v2 is present (Ubuntu AMIs don't ship it).
@@ -88,18 +96,35 @@ jobs:
           bash "\$REMOTE_DIR/deploy/ec2/bootstrap.sh"
           bash "\$REMOTE_DIR/deploy/ec2/deploy.sh"
 
-          # Health check: mint dev needs a moment to bind after restart.
+          # Health check 1: mint dev bound on localhost.
           for i in 1 2 3 4 5 6 7 8 9 10; do
             if curl -fsS --max-time 5 http://127.0.0.1:3000 > /dev/null; then
-              echo "health check: ok"
-              exit 0
+              echo "mint dev: ok"
+              break
             fi
             sleep 3
+            if [ "\$i" = "10" ]; then
+              echo "mint dev failed to bind after 30s" >&2
+              systemctl --no-pager status mint-internal || true
+              journalctl -u mint-internal -n 50 --no-pager || true
+              exit 1
+            fi
           done
-          echo "health check failed after 30s" >&2
-          systemctl --no-pager status mint-internal || true
-          journalctl -u mint-internal -n 50 --no-pager || true
-          exit 1
+
+          # Health check 2: nginx + basic auth + TLS via the public domain.
+          # 401 without creds confirms auth is enforced; 200 with creds confirms end-to-end.
+          UNAUTH_CODE=\$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "https://\$PREVIEW_DOMAIN/" || echo "000")
+          if [ "\$UNAUTH_CODE" != "401" ]; then
+            echo "expected 401 from https://\$PREVIEW_DOMAIN without creds, got \$UNAUTH_CODE" >&2
+            exit 1
+          fi
+          AUTH_CODE=\$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 \
+            -u "\$BASIC_AUTH_USER:\$BASIC_AUTH_PASSWORD" "https://\$PREVIEW_DOMAIN/" || echo "000")
+          if [ "\$AUTH_CODE" != "200" ]; then
+            echo "expected 200 with creds, got \$AUTH_CODE" >&2
+            exit 1
+          fi
+          echo "nginx + auth: ok"
           REMOTE
           )
 

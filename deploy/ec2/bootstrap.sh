@@ -82,6 +82,20 @@ if ! command -v mint >/dev/null 2>&1; then
   $SUDO npm install -g mint
 fi
 
+# nginx + htpasswd tooling + certbot for Let's Encrypt
+case "$PKG" in
+  apt)
+    install_pkgs nginx apache2-utils certbot python3-certbot-nginx
+    ;;
+  dnf)
+    install_pkgs nginx httpd-tools certbot python3-certbot-nginx
+    ;;
+esac
+
+# ACME challenge dir used by the renewal hook in the nginx config.
+$SUDO mkdir -p /var/www/letsencrypt
+$SUDO systemctl enable nginx
+
 # Deploy dir ownership
 $SUDO mkdir -p "$REMOTE_DIR"
 $SUDO chown -R "$DEPLOY_USER:$DEPLOY_USER" "$REMOTE_DIR"

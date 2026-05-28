@@ -1,6 +1,6 @@
 # EC2 internal docs preview
 
-Pipeline that runs `mint dev` for [internal/](../internal) on a long-running EC2 instance, redeployed on every push to `main`. Transport is **AWS SSM** (no SSH ingress) authenticated via **GitHub OIDC**.
+Pipeline that runs `mint dev` for [internal/](../internal) on a long-running EC2 instance, fronted by **nginx + HTTP Basic Auth + Let's Encrypt TLS**, redeployed on every push to `main`. Transport between GitHub Actions and the host is **AWS SSM** (no SSH ingress) authenticated via **GitHub OIDC**.
 
 Workflow: [.github/workflows/deploy-internal-preview.yml](../.github/workflows/deploy-internal-preview.yml).
 
@@ -10,86 +10,94 @@ Set these under **Settings → Secrets and variables → Actions → Secrets**:
 
 | Secret | Value |
 |---|---|
-| `AWS_ROLE_ARN` | `arn:aws:iam::<account>:role/<role>` — the IAM role this workflow assumes via OIDC |
+| `AWS_ROLE_ARN` | IAM role assumed via OIDC |
 | `AWS_REGION` | e.g. `us-east-1` |
-| `AWS_S3_BUCKET` | Bucket name used to ship the repo to the host (artifact transfer only — no public content) |
+| `AWS_S3_BUCKET` | Bucket used to ship the repo to the host (artifact transfer only) |
 | `EC2_INSTANCE_ID` | `i-0123456789abcdef0` |
-| `EC2_DEPLOY_USER` | Linux user that owns `/opt/magic-cms-docs` and runs `mint dev` — typically `ec2-user` (Amazon Linux) or `ubuntu` (Ubuntu AMI) |
+| `EC2_DEPLOY_USER` | Linux user that owns `/opt/magic-cms-docs` — typically `ubuntu` or `ec2-user` |
+| `PREVIEW_DOMAIN` | DNS name pointed at the EC2's public IP, e.g. `internal-docs-preview.magic-cms.com` |
+| `PREVIEW_BASIC_AUTH_USER` | Shared username (e.g. `team`) |
+| `PREVIEW_BASIC_AUTH_PASSWORD` | Shared password (cleartext; hashed with bcrypt on the host before writing to disk) |
+| `LETSENCRYPT_EMAIL` | Contact email for Let's Encrypt registration / expiry warnings |
 
-## One-time AWS setup
+## One-time setup
 
-### 1. GitHub OIDC provider in AWS
+### 1. DNS
 
-If you've never wired GitHub OIDC to this AWS account:
+Create an `A` record for `PREVIEW_DOMAIN` pointing at the EC2's public IPv4 address. Let's Encrypt's HTTP-01 challenge needs this resolvable globally **before the first deploy** — otherwise certbot will fail and the deploy aborts.
 
-1. IAM → Identity providers → Add provider
-2. Provider type: OpenID Connect
-3. Provider URL: `https://token.actions.githubusercontent.com`
-4. Audience: `sts.amazonaws.com`
+### 2. Security group
 
-### 2. IAM role for the workflow
+Inbound rules on the EC2:
 
-Create a role (e.g. `magic-cms-docs-deployer`) with this trust policy (scoped to this repo and `main`):
+- TCP **80** from `0.0.0.0/0` — required for Let's Encrypt HTTP-01 challenge and for the HTTP→HTTPS redirect.
+- TCP **443** from `0.0.0.0/0` — the actual preview, gated by Basic Auth.
+- **Remove** the TCP 3000 rule if you added it earlier — mint dev now sits behind nginx on localhost.
+- **No SSH (22)** rule needed — operate the host via SSM Session Manager.
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Principal": { "Federated": "arn:aws:iam::<account>:oidc-provider/token.actions.githubusercontent.com" },
-    "Action": "sts:AssumeRoleWithWebIdentity",
-    "Condition": {
-      "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
-      "StringLike":   { "token.actions.githubusercontent.com:sub": "repo:Flow-Automate-Solutions/magic-cms-docs:ref:refs/heads/main" }
-    }
-  }]
-}
-```
+Outbound: 443 to AWS endpoints (SSM, S3) and the public internet (apt/dnf, NodeSource, npm, Let's Encrypt).
 
-Attach a permissions policy granting:
+### 3. AWS — OIDC + IAM role + instance profile
 
-- `s3:PutObject`, `s3:DeleteObject`, `s3:ListBucket`, `s3:GetObject` on `arn:aws:s3:::<bucket>` and `arn:aws:s3:::<bucket>/magic-cms-docs/internal-preview/*`
-- `ssm:SendCommand` on `arn:aws:ec2:<region>:<account>:instance/<instance-id>` and the `AWS-RunShellScript` document
-- `ssm:GetCommandInvocation`, `ssm:ListCommandInvocations` on `*`
+See the earlier setup if not already done:
 
-### 3. EC2 instance prerequisites
-
-The instance itself must:
-
-1. Run Ubuntu 22.04+ or Amazon Linux 2023.
-2. Have the **SSM Agent** installed and running (default on those AMIs).
-3. Have an **instance profile** with:
-   - `AmazonSSMManagedInstanceCore` (lets SSM talk to it)
-   - A custom inline policy granting `s3:GetObject`, `s3:ListBucket` on the artifact bucket/prefix (lets the host pull code)
-4. Have outbound 443 to `ssm.<region>.amazonaws.com`, `ssmmessages.<region>.amazonaws.com`, `ec2messages.<region>.amazonaws.com`, and S3 (via gateway endpoint or NAT).
-5. **No inbound SSH required.** The only inbound rule needed is TCP 3000 from whoever views the preview (VPN CIDR, office IP, etc.). **Do not open 3000 to `0.0.0.0/0`** — `mint dev` has no auth layer.
+- GitHub OIDC provider in IAM (audience `sts.amazonaws.com`).
+- IAM role trusted by `repo:Flow-Automate-Solutions/magic-cms-docs:ref:refs/heads/main`, with permissions:
+  - S3 read/write on `arn:aws:s3:::<bucket>/magic-cms-docs/internal-preview/*`
+  - `ssm:SendCommand`, `ssm:GetCommandInvocation` on the instance
+- EC2 instance profile with `AmazonSSMManagedInstanceCore` + S3 read on the artifact bucket.
 
 ## How the deploy works
 
-On push to `main` (touching `internal/`, `_shared/`, `tools/`, or `deploy/ec2/`):
+On push to `main` (paths: `internal/`, `_shared/`, `tools/`, `deploy/ec2/`):
 
-1. Runner assumes the IAM role via OIDC.
-2. `aws s3 sync` uploads the repo to `s3://<bucket>/magic-cms-docs/internal-preview/`.
-3. `aws ssm send-command` runs a single shell payload on the EC2 that:
-   - `aws s3 sync`s the repo down to `/opt/magic-cms-docs`
-   - runs [bootstrap.sh](ec2/bootstrap.sh) (idempotent install of Node 20, Python 3.13, `mint`)
-   - runs [deploy.sh](ec2/deploy.sh) (regenerate openapi, refresh systemd unit, restart service)
-   - curls `http://127.0.0.1:3000` to confirm the service is up
-4. Workflow polls SSM until terminal status; stdout/stderr from the EC2 are echoed into the Actions log.
+1. Runner assumes the IAM role via OIDC, `aws s3 sync`s the repo to S3.
+2. `aws ssm send-command` runs a single payload on the EC2 that:
+   - Ensures AWS CLI v2 is installed.
+   - Syncs the repo down to `/opt/magic-cms-docs`.
+   - Runs [bootstrap.sh](ec2/bootstrap.sh) — installs Node 20, Python 3.13, `mint`, nginx, certbot (idempotent).
+   - Runs [deploy.sh](ec2/deploy.sh) — regenerates `internal/openapi.json`, refreshes the systemd unit, refreshes the htpasswd file, obtains the TLS cert on first run, installs the nginx vhost, reloads nginx.
+   - Health-checks `http://127.0.0.1:3000` (mint dev) and `https://$PREVIEW_DOMAIN/` (expect 401 without creds, 200 with).
+3. Workflow polls SSM until terminal status and echoes stdout/stderr into the Actions log.
 
-## Operating the service
+## Viewing the preview
+
+Open `https://<PREVIEW_DOMAIN>/` in a browser, enter the shared `PREVIEW_BASIC_AUTH_USER` + `PREVIEW_BASIC_AUTH_PASSWORD`.
+
+Quick smoke test from a shell:
 
 ```bash
-# From the EC2 (via SSM Session Manager: aws ssm start-session --target <instance-id>)
-sudo systemctl status mint-internal
-sudo journalctl -u mint-internal -f
-sudo systemctl restart mint-internal
+curl -I "https://$PREVIEW_DOMAIN/"                          # → 401
+curl -I -u "$USER:$PASS" "https://$PREVIEW_DOMAIN/"         # → 200
 ```
 
-The unit at `/etc/systemd/system/mint-internal.service` is regenerated from [ec2/mint-internal.service](ec2/mint-internal.service) on every deploy — edit the template in the repo, not the installed copy.
+## Operating the host
+
+Connect via SSM Session Manager (no SSH key needed):
+
+```bash
+aws ssm start-session --target <EC2_INSTANCE_ID> --region <AWS_REGION>
+```
+
+Then on the host:
+
+```bash
+sudo systemctl status mint-internal       # mint dev
+sudo journalctl -u mint-internal -f
+sudo systemctl status nginx
+sudo nginx -t                             # validate config
+sudo certbot certificates                 # show cert + expiry
+sudo certbot renew --dry-run              # test renewal flow
+```
+
+The unit template, nginx config, and htpasswd hash are all regenerated from the repo on each deploy — edit the files under [deploy/ec2/](ec2/), not the installed copies.
+
+## Rotating the basic-auth password
+
+Update `PREVIEW_BASIC_AUTH_PASSWORD` in GitHub Secrets, then re-run the workflow (or push any change touching `deploy/ec2/`). The htpasswd file is regenerated and nginx reloaded — no downtime.
 
 ## Out of scope
 
-- **TLS / public exposure.** The service binds plain HTTP on 3000. Put nginx + Let's Encrypt or an ALB in front separately.
+- **SSO / per-user auth.** This setup is a single shared password. For per-user SSO, swap nginx Basic Auth for `oauth2-proxy` in front of mint dev.
 - **External docs.** This pipeline only deploys the internal site.
-- **Instance provisioning.** The EC2, instance profile, and S3 bucket are assumed to exist.
+- **Instance provisioning.** EC2, instance profile, S3 bucket, DNS record are assumed to exist.
