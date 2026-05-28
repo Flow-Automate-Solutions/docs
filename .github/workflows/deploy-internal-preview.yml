@@ -55,7 +55,7 @@ jobs:
           # evaluated on the EC2, not on the runner — except the few we
           # need to interpolate from workflow env (marked with $RUNNER_*).
           REMOTE_SCRIPT=$(cat <<REMOTE
-          set -euo pipefail
+          set -eu
           export DEPLOY_USER='${DEPLOY_USER}'
           export REMOTE_DIR='${REMOTE_DIR}'
           export AWS_DEFAULT_REGION='${AWS_REGION}'
