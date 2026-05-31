@@ -62,13 +62,14 @@
     "/catalog-rule-builder": {
       "get": {
         "summary": "List catalog rule field metadata",
+        "description": "Returns static catalog-rule field metadata used by rule-builder UIs.",
         "operationId": "listCatalogRules",
         "tags": [
           "Catalog Rule Builder"
         ],
         "responses": {
           "200": {
-            "description": "Catalog rule field list.",
+            "description": "Catalog rule field metadata list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -89,6 +90,7 @@
     "/catalog-rule-builder/field-options": {
       "get": {
         "summary": "List dynamic catalog rule field options",
+        "description": "Returns dynamic option values for rule fields (for example vendor, category, product_type, and taxonomy values).",
         "operationId": "listCatalogRuleFieldOptions",
         "tags": [
           "Catalog Rule Builder"
@@ -116,6 +118,7 @@
     "/catalogs": {
       "get": {
         "summary": "List catalogs",
+        "description": "Returns a paginated list of catalogs with optional filtering by status, market, and search query.",
         "operationId": "listCatalogs",
         "tags": [
           "Catalogs"
@@ -124,6 +127,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -133,6 +137,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of catalogs per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -143,6 +148,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search against catalog name and description.",
             "schema": {
               "type": "string"
             }
@@ -150,6 +156,7 @@
           {
             "name": "status",
             "in": "query",
+            "description": "Filter by catalog lifecycle status.",
             "schema": {
               "type": "string",
               "enum": [
@@ -163,6 +170,7 @@
           {
             "name": "market_id",
             "in": "query",
+            "description": "Filter catalogs associated with a specific market.",
             "schema": {
               "type": "string"
             }
@@ -170,6 +178,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for the catalog list response.",
             "schema": {
               "type": "string",
               "enum": [
@@ -183,7 +192,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Catalog list.",
+            "description": "Paginated catalog list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -205,11 +214,13 @@
       },
       "post": {
         "summary": "Create catalog",
+        "description": "Creates a new catalog with optional rule links, manual include/exclude sets, and scheduling settings.",
         "operationId": "createCatalog",
         "tags": [
           "Catalogs"
         ],
         "requestBody": {
+          "description": "Catalog payload used to create a new catalog.",
           "required": true,
           "content": {
             "application/json": {
@@ -221,7 +232,7 @@
         },
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Catalog created successfully. Returns the new catalog identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -248,6 +259,7 @@
     "/catalogs/rules": {
       "get": {
         "summary": "List rules",
+        "description": "Lists catalog rules. Can be filtered to a specific catalog.",
         "operationId": "listRules",
         "tags": [
           "Catalog Rules"
@@ -256,6 +268,7 @@
           {
             "name": "catalog_id",
             "in": "query",
+            "description": "Optional catalog identifier to return rules for one catalog only.",
             "schema": {
               "type": "string"
             }
@@ -263,7 +276,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Rule list.",
+            "description": "Catalog rule list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -288,11 +301,13 @@
       },
       "post": {
         "summary": "Create rule",
+        "description": "Creates a new catalog rule with condition clauses and lifecycle status.",
         "operationId": "createRule",
         "tags": [
           "Catalog Rules"
         ],
         "requestBody": {
+          "description": "Rule payload used to create a new catalog rule.",
           "required": true,
           "content": {
             "application/json": {
@@ -304,7 +319,7 @@
         },
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Catalog rule created successfully. Returns the new rule identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -331,6 +346,7 @@
     "/catalogs/rules/{rule_id}": {
       "delete": {
         "summary": "Delete rule",
+        "description": "Deletes a catalog rule by identifier.",
         "operationId": "deleteRule",
         "tags": [
           "Catalog Rules"
@@ -340,6 +356,7 @@
             "name": "rule_id",
             "in": "path",
             "required": true,
+            "description": "Catalog rule identifier.",
             "schema": {
               "type": "string"
             }
@@ -347,7 +364,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Catalog rule deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -372,6 +389,7 @@
       },
       "put": {
         "summary": "Update rule",
+        "description": "Updates an existing catalog rule. Only provided fields are modified.",
         "operationId": "updateRule",
         "tags": [
           "Catalog Rules"
@@ -381,12 +399,14 @@
             "name": "rule_id",
             "in": "path",
             "required": true,
+            "description": "Catalog rule identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial catalog rule payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -398,7 +418,7 @@
         },
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Catalog rule updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -425,6 +445,7 @@
     "/catalogs/{catalog_id}": {
       "delete": {
         "summary": "Delete catalog",
+        "description": "Deletes a catalog by identifier.",
         "operationId": "deleteCatalog",
         "tags": [
           "Catalogs"
@@ -434,6 +455,7 @@
             "name": "catalog_id",
             "in": "path",
             "required": true,
+            "description": "Catalog identifier.",
             "schema": {
               "type": "string"
             }
@@ -441,7 +463,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Catalog deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -469,6 +491,7 @@
       },
       "get": {
         "summary": "Get catalog",
+        "description": "Fetches a single catalog by identifier.",
         "operationId": "getCatalog",
         "tags": [
           "Catalogs"
@@ -478,6 +501,7 @@
             "name": "catalog_id",
             "in": "path",
             "required": true,
+            "description": "Catalog identifier.",
             "schema": {
               "type": "string"
             }
@@ -485,7 +509,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Catalog.",
+            "description": "Catalog document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -510,6 +534,7 @@
       },
       "put": {
         "summary": "Update catalog",
+        "description": "Updates an existing catalog. Only provided fields are changed.",
         "operationId": "updateCatalog",
         "tags": [
           "Catalogs"
@@ -519,12 +544,14 @@
             "name": "catalog_id",
             "in": "path",
             "required": true,
+            "description": "Catalog identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial catalog payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -536,7 +563,7 @@
         },
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Catalog updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -566,6 +593,7 @@
     "/catalogs/{catalog_id}/products": {
       "get": {
         "summary": "List resolved catalog products",
+        "description": "Lists products that belong to a catalog after rule evaluation and manual overrides.",
         "operationId": "listCatalogProducts",
         "tags": [
           "Catalogs"
@@ -575,6 +603,7 @@
             "name": "catalog_id",
             "in": "path",
             "required": true,
+            "description": "Catalog identifier.",
             "schema": {
               "type": "string"
             }
@@ -582,6 +611,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -591,6 +621,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of products per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -601,6 +632,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search on resolved product results.",
             "schema": {
               "type": "string"
             }
@@ -616,7 +648,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Resolved products list.",
+            "description": "Paginated resolved catalog products with stats and cache freshness info.",
             "content": {
               "application/json": {
                 "schema": {
@@ -643,6 +675,7 @@
     "/catalogs/{catalog_id}/products/manual": {
       "put": {
         "summary": "Update catalog manual include and exclude products",
+        "description": "Updates manual include/exclude product membership overrides for a catalog.",
         "operationId": "updateCatalogManualProducts",
         "tags": [
           "Catalogs"
@@ -652,12 +685,14 @@
             "name": "catalog_id",
             "in": "path",
             "required": true,
+            "description": "Catalog identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Manual include/exclude product identifier lists for this catalog.",
           "required": true,
           "content": {
             "application/json": {
@@ -669,7 +704,7 @@
         },
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Manual membership lists updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -696,6 +731,7 @@
     "/catalogs/{catalog_id}/usage": {
       "get": {
         "summary": "Get catalog usage",
+        "description": "Returns where a catalog is currently used, including linked markets and schedule references.",
         "operationId": "getCatalogUsage",
         "tags": [
           "Catalogs"
@@ -705,6 +741,7 @@
             "name": "catalog_id",
             "in": "path",
             "required": true,
+            "description": "Catalog identifier.",
             "schema": {
               "type": "string"
             }
@@ -736,6 +773,7 @@
     "/collections": {
       "get": {
         "summary": "List collections",
+        "description": "Returns a paginated list of collections with optional filtering by type, market, catalog, and search query.",
         "operationId": "listCollections",
         "tags": [
           "Collections"
@@ -744,6 +782,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -753,6 +792,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of collections per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -763,6 +803,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search across collection name/slug/description fields.",
             "schema": {
               "type": "string"
             }
@@ -770,6 +811,7 @@
           {
             "name": "type",
             "in": "query",
+            "description": "Filter by collection mode (`manual` or `smart`).",
             "schema": {
               "$ref": "#/components/schemas/CollectionType"
             }
@@ -777,6 +819,7 @@
           {
             "name": "market_id",
             "in": "query",
+            "description": "Filter collections associated with a specific market.",
             "schema": {
               "type": "string"
             }
@@ -784,6 +827,7 @@
           {
             "name": "catalog_id",
             "in": "query",
+            "description": "Filter collections associated with a specific catalog.",
             "schema": {
               "type": "string"
             }
@@ -791,6 +835,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for collection list ordering.",
             "schema": {
               "type": "string",
               "enum": [
@@ -805,7 +850,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Collection list.",
+            "description": "Paginated collection list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -827,11 +872,13 @@
       },
       "post": {
         "summary": "Create collection",
+        "description": "Creates a new collection with manual or rule-based membership settings.",
         "operationId": "createCollection",
         "tags": [
           "Collections"
         ],
         "requestBody": {
+          "description": "Collection payload used to create a new collection.",
           "required": true,
           "content": {
             "application/json": {
@@ -843,7 +890,7 @@
         },
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Collection created successfully. Returns the new collection identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -870,11 +917,13 @@
     "/collections/products-preview": {
       "post": {
         "summary": "Preview catalog-scoped products for a (saved or unsaved) collection",
+        "description": "Previews the products that would belong to a collection based on its current rules/manual selections without persisting changes.",
         "operationId": "previewCollectionProducts",
         "tags": [
           "Collections"
         ],
         "requestBody": {
+          "description": "Collection preview context including catalog, mode, rules, and pagination options.",
           "required": true,
           "content": {
             "application/json": {
@@ -913,6 +962,7 @@
     "/collections/{collection_id}": {
       "delete": {
         "summary": "Delete collection",
+        "description": "Deletes a collection by identifier.",
         "operationId": "deleteCollection",
         "tags": [
           "Collections"
@@ -922,6 +972,7 @@
             "name": "collection_id",
             "in": "path",
             "required": true,
+            "description": "Collection identifier.",
             "schema": {
               "type": "string"
             }
@@ -929,7 +980,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Collection deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -954,6 +1005,7 @@
       },
       "get": {
         "summary": "Get collection",
+        "description": "Fetches a single collection by identifier.",
         "operationId": "getCollection",
         "tags": [
           "Collections"
@@ -963,6 +1015,7 @@
             "name": "collection_id",
             "in": "path",
             "required": true,
+            "description": "Collection identifier.",
             "schema": {
               "type": "string"
             }
@@ -970,7 +1023,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Collection.",
+            "description": "Collection document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -995,6 +1048,7 @@
       },
       "put": {
         "summary": "Update collection",
+        "description": "Updates an existing collection. Only provided fields are changed.",
         "operationId": "updateCollection",
         "tags": [
           "Collections"
@@ -1004,12 +1058,14 @@
             "name": "collection_id",
             "in": "path",
             "required": true,
+            "description": "Collection identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial collection payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -1021,7 +1077,7 @@
         },
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Collection updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1263,13 +1319,14 @@
     "/markets": {
       "get": {
         "summary": "List markets",
+        "description": "Returns a paginated list of markets with optional search and status/location filters.",
         "operationId": "listMarkets",
         "tags": [
           "Markets"
         ],
         "responses": {
           "200": {
-            "description": "Market list.",
+            "description": "Paginated market list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1292,6 +1349,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -1301,6 +1359,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of markets per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -1311,6 +1370,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search across market name/domain fields.",
             "schema": {
               "type": "string"
             }
@@ -1318,6 +1378,7 @@
           {
             "name": "status",
             "in": "query",
+            "description": "Filter by market activation status.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1329,6 +1390,7 @@
           {
             "name": "currency",
             "in": "query",
+            "description": "Filter by 3-letter currency code.",
             "schema": {
               "type": "string"
             }
@@ -1336,6 +1398,7 @@
           {
             "name": "country_code",
             "in": "query",
+            "description": "Filter by 2-letter country code.",
             "schema": {
               "type": "string"
             }
@@ -1343,6 +1406,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for market list ordering.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1357,13 +1421,14 @@
       },
       "post": {
         "summary": "Create market",
+        "description": "Creates a new market with pricing, localization, and catalog-link settings.",
         "operationId": "createMarket",
         "tags": [
           "Markets"
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Market created successfully. Returns the new market identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1383,6 +1448,7 @@
           }
         },
         "requestBody": {
+          "description": "Market payload used to create a new market.",
           "required": true,
           "content": {
             "application/json": {
@@ -1397,13 +1463,14 @@
     "/markets/{market_id}": {
       "delete": {
         "summary": "Delete market",
+        "description": "Deletes a market by identifier.",
         "operationId": "deleteMarket",
         "tags": [
           "Markets"
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Market deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1433,6 +1500,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1441,13 +1509,14 @@
       },
       "get": {
         "summary": "Get market",
+        "description": "Fetches a single market by identifier.",
         "operationId": "getMarket",
         "tags": [
           "Markets"
         ],
         "responses": {
           "200": {
-            "description": "Market.",
+            "description": "Market document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1474,6 +1543,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1482,13 +1552,14 @@
       },
       "put": {
         "summary": "Update market",
+        "description": "Updates an existing market. Only provided fields are modified.",
         "operationId": "updateMarket",
         "tags": [
           "Markets"
         ],
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Market updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1515,12 +1586,14 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial market payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -1535,6 +1608,7 @@
     "/markets/{market_id}/compliance/requirements": {
       "get": {
         "summary": "List market compliance requirements",
+        "description": "Lists compliance requirements configured for a market with optional filters.",
         "operationId": "listMarketComplianceRequirements",
         "tags": [
           "Markets"
@@ -1544,6 +1618,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1551,6 +1626,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search across requirement name/description/regulation fields.",
             "schema": {
               "type": "string"
             }
@@ -1558,6 +1634,7 @@
           {
             "name": "status",
             "in": "query",
+            "description": "Filter by requirement lifecycle status.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1571,6 +1648,7 @@
           {
             "name": "severity",
             "in": "query",
+            "description": "Filter by risk severity.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1584,6 +1662,7 @@
           {
             "name": "category",
             "in": "query",
+            "description": "Filter by compliance category.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1600,6 +1679,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for requirement list ordering.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1616,7 +1696,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Market compliance requirements list.",
+            "description": "List of market compliance requirements.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1641,6 +1721,7 @@
       },
       "post": {
         "summary": "Create market compliance requirement",
+        "description": "Creates a compliance requirement record for a market.",
         "operationId": "createMarketComplianceRequirement",
         "tags": [
           "Markets"
@@ -1650,12 +1731,14 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Compliance requirement payload.",
           "required": true,
           "content": {
             "application/json": {
@@ -1667,7 +1750,7 @@
         },
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Compliance requirement created successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1694,6 +1777,7 @@
     "/markets/{market_id}/compliance/requirements/{requirement_id}": {
       "delete": {
         "summary": "Delete market compliance requirement",
+        "description": "Deletes a compliance requirement from a market.",
         "operationId": "deleteMarketComplianceRequirement",
         "tags": [
           "Markets"
@@ -1703,6 +1787,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1711,6 +1796,7 @@
             "name": "requirement_id",
             "in": "path",
             "required": true,
+            "description": "Compliance requirement identifier.",
             "schema": {
               "type": "string"
             }
@@ -1718,7 +1804,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Compliance requirement deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1743,6 +1829,7 @@
       },
       "put": {
         "summary": "Update market compliance requirement",
+        "description": "Updates an existing compliance requirement for a market.",
         "operationId": "updateMarketComplianceRequirement",
         "tags": [
           "Markets"
@@ -1752,6 +1839,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1760,12 +1848,14 @@
             "name": "requirement_id",
             "in": "path",
             "required": true,
+            "description": "Compliance requirement identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial compliance requirement payload.",
           "required": true,
           "content": {
             "application/json": {
@@ -1777,7 +1867,7 @@
         },
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Compliance requirement updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1804,6 +1894,7 @@
     "/markets/{market_id}/default": {
       "put": {
         "summary": "Set default market",
+        "description": "Marks a market as the tenant default market.",
         "operationId": "setDefaultMarket",
         "tags": [
           "Markets"
@@ -1837,12 +1928,14 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Optional body for default-market command semantics.",
           "required": false,
           "content": {
             "application/json": {
@@ -1857,6 +1950,7 @@
     "/markets/{market_id}/sales": {
       "get": {
         "summary": "List market sales",
+        "description": "Lists sale campaigns configured for a market.",
         "operationId": "listMarketSales",
         "tags": [
           "Markets"
@@ -1866,6 +1960,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1873,7 +1968,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Market sales list.",
+            "description": "List of sale campaigns for the market.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1898,6 +1993,7 @@
       },
       "post": {
         "summary": "Create market sale",
+        "description": "Creates a new sale campaign for a market.",
         "operationId": "createMarketSale",
         "tags": [
           "Markets"
@@ -1907,12 +2003,14 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Sale campaign payload.",
           "required": true,
           "content": {
             "application/json": {
@@ -1924,7 +2022,7 @@
         },
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Sale campaign created successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1951,6 +2049,7 @@
     "/markets/{market_id}/sales/{sale_id}": {
       "delete": {
         "summary": "Delete market sale",
+        "description": "Deletes a sale campaign from a market.",
         "operationId": "deleteMarketSale",
         "tags": [
           "Markets"
@@ -1960,6 +2059,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -1968,6 +2068,7 @@
             "name": "sale_id",
             "in": "path",
             "required": true,
+            "description": "Sale campaign identifier.",
             "schema": {
               "type": "string"
             }
@@ -1975,7 +2076,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Sale campaign deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2000,6 +2101,7 @@
       },
       "put": {
         "summary": "Update market sale",
+        "description": "Updates a sale campaign for a market.",
         "operationId": "updateMarketSale",
         "tags": [
           "Markets"
@@ -2009,6 +2111,7 @@
             "name": "market_id",
             "in": "path",
             "required": true,
+            "description": "Market identifier.",
             "schema": {
               "type": "string"
             }
@@ -2017,12 +2120,14 @@
             "name": "sale_id",
             "in": "path",
             "required": true,
+            "description": "Sale campaign identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial sale campaign payload.",
           "required": true,
           "content": {
             "application/json": {
@@ -2034,7 +2139,7 @@
         },
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Sale campaign updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2478,13 +2583,14 @@
     "/product-options": {
       "get": {
         "summary": "List product options",
+        "description": "Returns a paginated list of product options with optional search and market/activity filters.",
         "operationId": "listProductOptions",
         "tags": [
           "Product Options"
         ],
         "responses": {
           "200": {
-            "description": "Product option list.",
+            "description": "Paginated product option list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2507,6 +2613,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2516,6 +2623,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of options per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2526,6 +2634,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search across option name and values.",
             "schema": {
               "type": "string"
             }
@@ -2533,6 +2642,7 @@
           {
             "name": "market_id",
             "in": "query",
+            "description": "Filter options scoped to a specific market.",
             "schema": {
               "type": "string"
             }
@@ -2540,6 +2650,7 @@
           {
             "name": "active",
             "in": "query",
+            "description": "Filter by active/inactive state.",
             "schema": {
               "type": "boolean"
             }
@@ -2547,6 +2658,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for option list ordering.",
             "schema": {
               "type": "string",
               "enum": [
@@ -2561,13 +2673,14 @@
       },
       "post": {
         "summary": "Create product option",
+        "description": "Creates a product option used as an add-on configuration for products.",
         "operationId": "createProductOption",
         "tags": [
           "Product Options"
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Product option created successfully. Returns the new option identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2590,6 +2703,7 @@
           }
         },
         "requestBody": {
+          "description": "Product option payload used to create a new option.",
           "required": true,
           "content": {
             "application/json": {
@@ -2604,13 +2718,14 @@
     "/product-options/{option_id}": {
       "delete": {
         "summary": "Delete product option",
+        "description": "Deletes a product option by identifier.",
         "operationId": "deleteProductOption",
         "tags": [
           "Product Options"
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Product option deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2637,6 +2752,7 @@
             "name": "option_id",
             "in": "path",
             "required": true,
+            "description": "Product option identifier.",
             "schema": {
               "type": "string"
             }
@@ -2645,13 +2761,14 @@
       },
       "get": {
         "summary": "Get product option",
+        "description": "Fetches a single product option by identifier.",
         "operationId": "getProductOption",
         "tags": [
           "Product Options"
         ],
         "responses": {
           "200": {
-            "description": "Product option.",
+            "description": "Product option document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2678,6 +2795,7 @@
             "name": "option_id",
             "in": "path",
             "required": true,
+            "description": "Product option identifier.",
             "schema": {
               "type": "string"
             }
@@ -2686,13 +2804,14 @@
       },
       "put": {
         "summary": "Update product option",
+        "description": "Updates an existing product option. Only provided fields are modified.",
         "operationId": "updateProductOption",
         "tags": [
           "Product Options"
         ],
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Product option updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2719,12 +2838,14 @@
             "name": "option_id",
             "in": "path",
             "required": true,
+            "description": "Product option identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial product option payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -4232,42 +4353,51 @@
         "type": "object"
       },
       "Catalog": {
+        "description": "Catalog entity containing rule-based and manual product selection configuration.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Catalog identifier.",
             "type": "string"
           },
           "name": {
+            "description": "Display name of the catalog.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable description of catalog intent.",
             "type": "string"
           },
           "rule_ids": {
+            "description": "Catalog rule identifiers evaluated to resolve dynamic product membership.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_includes": {
+            "description": "Product identifiers always included in this catalog.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_excludes": {
+            "description": "Product identifiers always excluded from this catalog.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "plan_variant_excludes": {
+            "description": "Plan/variant combinations excluded from this catalog for entitlement-specific behavior.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PlanVariantExclude"
             }
           },
           "schedule_start": {
+            "description": "Optional ISO datetime when scheduled catalog activation starts.",
             "anyOf": [
               {
                 "type": "string"
@@ -4278,6 +4408,7 @@
             ]
           },
           "schedule_end": {
+            "description": "Optional ISO datetime when scheduled catalog activation ends.",
             "anyOf": [
               {
                 "type": "string"
@@ -4288,6 +4419,7 @@
             ]
           },
           "status": {
+            "description": "Current lifecycle state of the catalog.",
             "type": "string",
             "enum": [
               "draft",
@@ -4297,15 +4429,18 @@
             ]
           },
           "market_ids": {
+            "description": "Market identifiers associated with this catalog.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "created_at": {
+            "description": "Catalog creation timestamp.",
             "type": "string"
           },
           "updated_at": {
+            "description": "Catalog last update timestamp.",
             "type": "string"
           }
         },
@@ -4324,39 +4459,47 @@
         ]
       },
       "CatalogCreateRequest": {
+        "description": "Payload used to create a catalog.",
         "type": "object",
         "properties": {
           "name": {
+            "description": "Display name of the catalog.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable description of catalog intent.",
             "type": "string"
           },
           "rule_ids": {
+            "description": "Catalog rule identifiers to attach at creation time.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_includes": {
+            "description": "Product identifiers to always include.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_excludes": {
+            "description": "Product identifiers to always exclude.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "plan_variant_excludes": {
+            "description": "Plan/variant combinations to exclude.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PlanVariantExclude"
             }
           },
           "schedule_start": {
+            "description": "Optional ISO datetime when scheduled activation starts.",
             "anyOf": [
               {
                 "type": "string"
@@ -4367,6 +4510,7 @@
             ]
           },
           "schedule_end": {
+            "description": "Optional ISO datetime when scheduled activation ends.",
             "anyOf": [
               {
                 "type": "string"
@@ -4377,6 +4521,7 @@
             ]
           },
           "status": {
+            "description": "Initial lifecycle status for the catalog.",
             "type": "string",
             "enum": [
               "draft",
@@ -4386,6 +4531,7 @@
             ]
           },
           "market_ids": {
+            "description": "Associated market identifiers.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4397,15 +4543,18 @@
         ]
       },
       "CatalogListResponse": {
+        "description": "Paginated catalog list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Catalog records for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Catalog"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -4415,15 +4564,18 @@
         ]
       },
       "CatalogManualProductsRequest": {
+        "description": "Manual membership override payload for catalog products.",
         "type": "object",
         "properties": {
           "manual_includes": {
+            "description": "Product identifiers to force-include in the catalog.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_excludes": {
+            "description": "Product identifiers to force-exclude from the catalog.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4436,6 +4588,7 @@
         ]
       },
       "CatalogProduct": {
+        "description": "Resolved catalog product with membership provenance.",
         "allOf": [
           {
             "$ref": "#/components/schemas/Product"
@@ -4444,6 +4597,7 @@
             "type": "object",
             "properties": {
               "membership_source": {
+                "description": "How this product entered the catalog (`rule` or `manual_include`).",
                 "type": "string",
                 "enum": [
                   "rule",
@@ -4458,12 +4612,15 @@
         ]
       },
       "CatalogProductStats": {
+        "description": "Aggregate counters for resolved catalog product membership.",
         "type": "object",
         "properties": {
           "total_products": {
+            "description": "Total resolved products in this catalog.",
             "type": "integer"
           },
           "total_variants": {
+            "description": "Total resolved product variants across all matched products.",
             "type": "integer"
           }
         },
@@ -4473,18 +4630,22 @@
         ]
       },
       "CatalogProductsListResponse": {
+        "description": "Paginated response for resolved catalog products.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Resolved products for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CatalogProduct"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           },
           "stats": {
+            "description": "Aggregate counts for resolved catalog membership.",
             "$ref": "#/components/schemas/CatalogProductStats"
           },
           "is_stale": {
@@ -4500,9 +4661,11 @@
         ]
       },
       "CatalogRuleCondition": {
+        "description": "Condition operator/value pair supported by a catalog rule field.",
         "type": "object",
         "properties": {
           "op": {
+            "description": "Comparison operator supported by the field.",
             "type": "string",
             "enum": [
               "eq",
@@ -4518,9 +4681,11 @@
             ]
           },
           "name": {
+            "description": "Condition display label.",
             "type": "string"
           },
           "value": {
+            "description": "Serialized operator token consumed by rule evaluation.",
             "type": "string"
           }
         },
@@ -4531,18 +4696,23 @@
         ]
       },
       "CatalogRuleField": {
+        "description": "Rule-builder field definition and allowed condition operators.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Optional field identifier.",
             "type": "string"
           },
           "key": {
+            "description": "Field key used in rule clauses.",
             "type": "string"
           },
           "name": {
+            "description": "Field label shown in the rule builder.",
             "type": "string"
           },
           "conditions": {
+            "description": "Condition operators available for this field.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CatalogRuleCondition"
@@ -4556,27 +4726,32 @@
         ]
       },
       "CatalogRuleFieldOptionsResponse": {
+        "description": "Dynamic option values used by catalog rule fields.",
         "type": "object",
         "properties": {
           "vendor": {
+            "description": "Available vendor values.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "category": {
+            "description": "Available category values.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "taxonomy_names": {
+            "description": "Available taxonomy names.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "taxonomy_values": {
+            "description": "Available taxonomy values grouped by taxonomy name.",
             "type": "object",
             "additionalProperties": {
               "type": "array",
@@ -4586,6 +4761,7 @@
             }
           },
           "product_type": {
+            "description": "Available scalar product type values.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4601,9 +4777,11 @@
         ]
       },
       "CatalogRulesListResponse": {
+        "description": "List response for catalog rule field metadata.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Catalog rule field definitions.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CatalogRuleField"
@@ -4615,39 +4793,47 @@
         ]
       },
       "CatalogUpdateRequest": {
+        "description": "Payload used to update an existing catalog. All fields are optional.",
         "type": "object",
         "properties": {
           "name": {
+            "description": "Display name of the catalog.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable description of catalog intent.",
             "type": "string"
           },
           "rule_ids": {
+            "description": "Catalog rule identifiers to apply.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_includes": {
+            "description": "Product identifiers to always include.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "manual_excludes": {
+            "description": "Product identifiers to always exclude.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "plan_variant_excludes": {
+            "description": "Plan/variant combinations to exclude.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PlanVariantExclude"
             }
           },
           "schedule_start": {
+            "description": "Optional ISO datetime when scheduled activation starts.",
             "anyOf": [
               {
                 "type": "string"
@@ -4658,6 +4844,7 @@
             ]
           },
           "schedule_end": {
+            "description": "Optional ISO datetime when scheduled activation ends.",
             "anyOf": [
               {
                 "type": "string"
@@ -4668,6 +4855,7 @@
             ]
           },
           "status": {
+            "description": "Lifecycle status for the catalog.",
             "type": "string",
             "enum": [
               "draft",
@@ -4677,6 +4865,7 @@
             ]
           },
           "market_ids": {
+            "description": "Associated market identifiers.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4700,15 +4889,18 @@
         ]
       },
       "CatalogUsageResponse": {
+        "description": "Summary of where a catalog is referenced.",
         "type": "object",
         "properties": {
           "markets": {
+            "description": "Markets currently linked to this catalog.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CatalogUsageMarket"
             }
           },
           "schedules": {
+            "description": "Schedule entries that reference this catalog.",
             "type": "array",
             "items": {
               "type": "object"
@@ -4721,30 +4913,38 @@
         ]
       },
       "Collection": {
+        "description": "Collection entity used to group products manually or via rules.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Collection identifier.",
             "type": "string"
           },
           "name": {
+            "description": "Display name of the collection.",
             "type": "string"
           },
           "slug": {
+            "description": "URL-friendly collection slug.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable description of collection intent.",
             "type": "string"
           },
           "image": {
             "type": "string"
           },
           "type": {
+            "description": "Collection mode (`manual` or `smart`).",
             "$ref": "#/components/schemas/CollectionType"
           },
           "rules": {
+            "description": "Rule condition tree used when the collection type is `smart`.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "product_count": {
+            "description": "Resolved number of products currently in the collection.",
             "type": "integer"
           },
           "market_id": {
@@ -4768,6 +4968,7 @@
             ]
           },
           "manual_product_ids": {
+            "description": "Product identifiers manually included when using manual mode.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4795,24 +4996,30 @@
         ]
       },
       "CollectionCreateRequest": {
+        "description": "Payload used to create a collection.",
         "type": "object",
         "properties": {
           "name": {
+            "description": "Display name of the collection.",
             "type": "string"
           },
           "slug": {
+            "description": "URL-friendly collection slug.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable description of collection intent.",
             "type": "string"
           },
           "image": {
             "type": "string"
           },
           "type": {
+            "description": "Collection mode (`manual` or `smart`).",
             "$ref": "#/components/schemas/CollectionType"
           },
           "rules": {
+            "description": "Rule condition tree for smart collections.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "market_id": {
@@ -4836,6 +5043,7 @@
             ]
           },
           "manual_product_ids": {
+            "description": "Product identifiers manually included in this collection.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4847,15 +5055,18 @@
         ]
       },
       "CollectionListResponse": {
+        "description": "Paginated collection list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Collection records for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Collection"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -4865,18 +5076,23 @@
         ]
       },
       "CollectionProductsPreviewRequest": {
+        "description": "Payload used to preview products for a collection definition.",
         "type": "object",
         "properties": {
           "catalog_id": {
+            "description": "Catalog identifier used to scope preview evaluation.",
             "type": "string"
           },
           "type": {
+            "description": "Collection mode to preview (`manual` or `smart`).",
             "$ref": "#/components/schemas/CollectionType"
           },
           "rules": {
+            "description": "Rule condition tree used for smart collection preview.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "manual_product_ids": {
+            "description": "Manual product IDs considered for preview.",
             "type": "array",
             "items": {
               "type": "string"
@@ -4885,15 +5101,18 @@
           "page": {
             "type": "integer",
             "minimum": 1,
+            "description": "Page number (1-based).",
             "default": 1
           },
           "size": {
             "type": "integer",
             "minimum": 1,
             "maximum": 100,
+            "description": "Number of products per page.",
             "default": 50
           },
           "search": {
+            "description": "Optional free-text search across previewed products.",
             "type": "string"
           }
         },
@@ -4902,21 +5121,26 @@
         ]
       },
       "CollectionProductsPreviewResponse": {
+        "description": "Preview response for collection product membership.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Previewed products for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CatalogProduct"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the preview query.",
             "$ref": "#/components/schemas/Pagination"
           },
           "stats": {
+            "description": "Aggregate counts for the preview result set.",
             "$ref": "#/components/schemas/CatalogProductStats"
           },
           "is_stale": {
+            "description": "True when membership-sync cache is behind and preview includes stale indicators.",
             "type": "boolean"
           }
         },
@@ -4928,6 +5152,7 @@
         ]
       },
       "CollectionType": {
+        "description": "Collection mode. `manual` uses explicit product IDs, `smart` uses rule conditions.",
         "type": "string",
         "enum": [
           "manual",
@@ -4935,24 +5160,30 @@
         ]
       },
       "CollectionUpdateRequest": {
+        "description": "Payload used to update an existing collection. All fields are optional.",
         "type": "object",
         "properties": {
           "name": {
+            "description": "Display name of the collection.",
             "type": "string"
           },
           "slug": {
+            "description": "URL-friendly collection slug.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable description of collection intent.",
             "type": "string"
           },
           "image": {
             "type": "string"
           },
           "type": {
+            "description": "Collection mode (`manual` or `smart`).",
             "$ref": "#/components/schemas/CollectionType"
           },
           "rules": {
+            "description": "Rule condition tree for smart collections.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "market_id": {
@@ -4976,6 +5207,7 @@
             ]
           },
           "manual_product_ids": {
+            "description": "Product identifiers manually included in this collection.",
             "type": "array",
             "items": {
               "type": "string"
@@ -5143,9 +5375,11 @@
         ]
       },
       "Market": {
+        "description": "Market object returned by market APIs. Includes dynamic tenant-specific fields.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "String form of the market identifier.",
             "type": "string"
           }
         },
@@ -5155,15 +5389,19 @@
         "additionalProperties": true
       },
       "MarketComplianceRequirement": {
+        "description": "Compliance requirement tracked for a market.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Compliance requirement identifier.",
             "type": "string"
           },
           "market_id": {
+            "description": "Parent market identifier.",
             "type": "string"
           },
           "name": {
+            "description": "Requirement title.",
             "type": "string"
           },
           "description": {
@@ -5197,6 +5435,7 @@
             ]
           },
           "status": {
+            "description": "Current lifecycle status of the requirement.",
             "type": "string",
             "enum": [
               "pending",
@@ -5240,11 +5479,13 @@
       "MarketComplianceRequirementCreate": {
         "type": "object",
         "additionalProperties": false,
+        "description": "Payload used to create a market compliance requirement.",
         "properties": {
           "name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 200
+            "maxLength": 200,
+            "description": "Requirement title."
           },
           "description": {
             "type": "string",
@@ -5269,7 +5510,8 @@
               "import_export",
               "accessibility"
             ],
-            "default": "labeling"
+            "default": "labeling",
+            "description": "Compliance domain/category."
           },
           "severity": {
             "type": "string",
@@ -5279,7 +5521,8 @@
               "high",
               "critical"
             ],
-            "default": "medium"
+            "default": "medium",
+            "description": "Risk severity level."
           },
           "status": {
             "type": "string",
@@ -5289,7 +5532,8 @@
               "compliant",
               "non_compliant"
             ],
-            "default": "pending"
+            "default": "pending",
+            "description": "Initial lifecycle status."
           },
           "due_date": {
             "type": [
@@ -5310,6 +5554,7 @@
       "MarketComplianceRequirementUpdate": {
         "type": "object",
         "additionalProperties": false,
+        "description": "Payload used to update an existing market compliance requirement.",
         "properties": {
           "name": {
             "type": "string",
@@ -5367,9 +5612,11 @@
         }
       },
       "MarketComplianceRequirementsListResponse": {
+        "description": "List response for market compliance requirements.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Compliance requirements matching the query.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MarketComplianceRequirement"
@@ -5382,26 +5629,31 @@
       },
       "MarketCreate": {
         "additionalProperties": false,
+        "description": "Payload used to create a market.",
         "properties": {
           "name": {
             "minLength": 1,
+            "description": "Display name of the market.",
             "title": "Name",
             "type": "string"
           },
           "country_code": {
             "maxLength": 2,
             "minLength": 2,
+            "description": "ISO country code for the market.",
             "title": "Country Code",
             "type": "string"
           },
           "currency": {
             "maxLength": 3,
             "minLength": 3,
+            "description": "ISO currency code used for pricing in this market.",
             "title": "Currency",
             "type": "string"
           },
           "domain": {
             "default": "",
+            "description": "Optional market-specific domain.",
             "title": "Domain",
             "type": "string"
           },
@@ -5462,6 +5714,7 @@
               }
             ],
             "default": null,
+            "description": "Catalog identifier currently active for this market.",
             "title": "Active Catalog Id"
           },
           "status": {
@@ -5470,6 +5723,7 @@
               "active",
               "inactive"
             ],
+            "description": "Activation status of the market.",
             "title": "Status",
             "type": "string"
           },
@@ -5502,10 +5756,12 @@
       },
       "MarketListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing markets with pagination, search, and filters.",
         "properties": {
           "page": {
             "default": 1,
             "minimum": 1,
+            "description": "Page number (1-based).",
             "title": "Page",
             "type": "integer"
           },
@@ -5513,6 +5769,7 @@
             "default": 50,
             "maximum": 100,
             "minimum": 1,
+            "description": "Number of items per page.",
             "title": "Size",
             "type": "integer"
           },
@@ -5526,6 +5783,7 @@
               }
             ],
             "default": null,
+            "description": "Free-text search term.",
             "title": "Search"
           },
           "status": {
@@ -5542,6 +5800,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by market activation status.",
             "title": "Status"
           },
           "currency": {
@@ -5554,6 +5813,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by ISO currency code.",
             "title": "Currency"
           },
           "country_code": {
@@ -5566,6 +5826,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by ISO country code.",
             "title": "Country Code"
           },
           "sort_by": {
@@ -5576,6 +5837,7 @@
               "name_asc",
               "name_desc"
             ],
+            "description": "Sort token for markets list.",
             "title": "Sort By",
             "type": "string"
           }
@@ -5584,15 +5846,18 @@
         "type": "object"
       },
       "MarketListResponse": {
+        "description": "Paginated market list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Market records for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Market"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -5603,9 +5868,11 @@
       },
       "MarketSale": {
         "additionalProperties": false,
+        "description": "Sale campaign configured for a market.",
         "properties": {
           "id": {
             "type": "string",
+            "description": "Sale campaign identifier.",
             "title": "Id"
           },
           "cms_id": {
@@ -5614,14 +5881,17 @@
           },
           "market_id": {
             "type": "string",
+            "description": "Parent market identifier.",
             "title": "Market Id"
           },
           "catalog_id": {
             "type": "string",
+            "description": "Catalog identifier used as the sale scope.",
             "title": "Catalog Id"
           },
           "name": {
             "type": "string",
+            "description": "Display name of the sale campaign.",
             "title": "Name"
           },
           "discount_type": {
@@ -5911,9 +6181,11 @@
       },
       "MarketSalesListResponse": {
         "additionalProperties": false,
+        "description": "List response for market sale campaigns.",
         "properties": {
           "items": {
             "type": "array",
+            "description": "Sale campaigns configured for the market.",
             "items": {
               "$ref": "#/components/schemas/MarketSale"
             },
@@ -5928,12 +6200,14 @@
       },
       "MarketSetDefault": {
         "additionalProperties": false,
+        "description": "Optional command payload for setting the default market.",
         "properties": {},
         "title": "MarketSetDefault",
         "type": "object"
       },
       "MarketUpdate": {
         "additionalProperties": false,
+        "description": "Payload used to update a market. All fields are optional.",
         "properties": {
           "name": {
             "anyOf": [
@@ -5946,6 +6220,7 @@
               }
             ],
             "default": null,
+            "description": "Display name of the market.",
             "title": "Name"
           },
           "country_code": {
@@ -5960,6 +6235,7 @@
               }
             ],
             "default": null,
+            "description": "ISO country code for the market.",
             "title": "Country Code"
           },
           "currency": {
@@ -5974,6 +6250,7 @@
               }
             ],
             "default": null,
+            "description": "ISO currency code used for pricing in this market.",
             "title": "Currency"
           },
           "domain": {
@@ -5986,6 +6263,7 @@
               }
             ],
             "default": null,
+            "description": "Optional market-specific domain.",
             "title": "Domain"
           },
           "region_multiplier": {
@@ -6090,6 +6368,7 @@
               }
             ],
             "default": null,
+            "description": "Catalog identifier currently active for this market.",
             "title": "Active Catalog Id"
           },
           "status": {
@@ -6106,6 +6385,7 @@
               }
             ],
             "default": null,
+            "description": "Activation status of the market.",
             "title": "Status"
           },
           "is_default": {
@@ -8106,9 +8386,11 @@
         "type": "object"
       },
       "ProductOption": {
+        "description": "Product option object returned by product option APIs.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "String form of the product option identifier.",
             "type": "string"
           }
         },
@@ -8119,11 +8401,13 @@
       },
       "ProductOptionCreate": {
         "additionalProperties": false,
+        "description": "Payload used to create a product option.",
         "properties": {
           "name": {
             "type": "string",
             "minLength": 1,
             "maxLength": 200,
+            "description": "Display name of the option.",
             "title": "Name"
           },
           "type": {
@@ -8134,12 +8418,14 @@
               "select"
             ],
             "default": "checkbox",
+            "description": "UI/input type used to collect option values.",
             "title": "Type"
           },
           "price": {
             "type": "number",
             "minimum": 0,
             "default": 0,
+            "description": "Price impact contributed by the option.",
             "title": "Price"
           },
           "values": {
@@ -8147,6 +8433,7 @@
             "items": {
               "type": "string"
             },
+            "description": "Allowed values for `select` type options.",
             "title": "Values"
           },
           "applies_to": {
@@ -8156,6 +8443,7 @@
               "specific"
             ],
             "default": "all",
+            "description": "Whether the option applies to all products or specific products.",
             "title": "Applies To"
           },
           "product_ids": {
@@ -8163,11 +8451,13 @@
             "items": {
               "type": "string"
             },
+            "description": "Target product IDs when `applies_to` is `specific`.",
             "title": "Product Ids"
           },
           "active": {
             "type": "boolean",
             "default": true,
+            "description": "Whether the option is currently active.",
             "title": "Active"
           },
           "market_id": {
@@ -8180,6 +8470,7 @@
               }
             ],
             "default": null,
+            "description": "Optional market scope for this option.",
             "title": "Market Id"
           }
         },
@@ -8191,11 +8482,13 @@
       },
       "ProductOptionListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing product options with pagination and filters.",
         "properties": {
           "page": {
             "type": "integer",
             "minimum": 1,
             "default": 1,
+            "description": "Page number (1-based).",
             "title": "Page"
           },
           "size": {
@@ -8203,6 +8496,7 @@
             "minimum": 1,
             "maximum": 100,
             "default": 50,
+            "description": "Number of items per page.",
             "title": "Size"
           },
           "search": {
@@ -8215,6 +8509,7 @@
               }
             ],
             "default": null,
+            "description": "Free-text search term.",
             "title": "Search"
           },
           "market_id": {
@@ -8227,6 +8522,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by market scope.",
             "title": "Market Id"
           },
           "active": {
@@ -8239,6 +8535,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by active/inactive state.",
             "title": "Active"
           },
           "sort_by": {
@@ -8250,6 +8547,7 @@
               "created_at_desc"
             ],
             "default": "created_at_desc",
+            "description": "Sort token for option list ordering.",
             "title": "Sort By"
           }
         },
@@ -8257,15 +8555,18 @@
         "type": "object"
       },
       "ProductOptionListResponse": {
+        "description": "Paginated product option list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Product options in the requested page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductOption"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -8276,6 +8577,7 @@
       },
       "ProductOptionUpdate": {
         "additionalProperties": false,
+        "description": "Payload used to update a product option. All fields are optional.",
         "properties": {
           "name": {
             "anyOf": [
@@ -8289,6 +8591,7 @@
               }
             ],
             "default": null,
+            "description": "Display name of the option.",
             "title": "Name"
           },
           "type": {
@@ -8306,6 +8609,7 @@
               }
             ],
             "default": null,
+            "description": "UI/input type used to collect option values.",
             "title": "Type"
           },
           "price": {
@@ -8319,6 +8623,7 @@
               }
             ],
             "default": null,
+            "description": "Price impact contributed by the option.",
             "title": "Price"
           },
           "values": {
@@ -8334,6 +8639,7 @@
               }
             ],
             "default": null,
+            "description": "Allowed values for `select` type options.",
             "title": "Values"
           },
           "applies_to": {
@@ -8350,6 +8656,7 @@
               }
             ],
             "default": null,
+            "description": "Whether the option applies to all products or specific products.",
             "title": "Applies To"
           },
           "product_ids": {
@@ -8365,6 +8672,7 @@
               }
             ],
             "default": null,
+            "description": "Target product IDs when `applies_to` is `specific`.",
             "title": "Product Ids"
           },
           "active": {
@@ -8377,6 +8685,7 @@
               }
             ],
             "default": null,
+            "description": "Whether the option is currently active.",
             "title": "Active"
           },
           "market_id": {
@@ -8389,6 +8698,7 @@
               }
             ],
             "default": null,
+            "description": "Optional market scope for this option.",
             "title": "Market Id"
           }
         },
@@ -9830,18 +10140,23 @@
         ]
       },
       "Rule": {
+        "description": "Catalog rule entity stored for dynamic catalog membership evaluation.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Catalog rule identifier.",
             "type": "string"
           },
           "name": {
+            "description": "Rule display name.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable explanation of the rule.",
             "type": "string"
           },
           "type": {
+            "description": "Rule classification/type.",
             "type": "string",
             "enum": [
               "visibility",
@@ -9852,12 +10167,15 @@
             ]
           },
           "conditions": {
+            "description": "Condition tree evaluated for this rule.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "priority": {
+            "description": "Evaluation priority (higher/lower ordering handled by backend semantics).",
             "type": "integer"
           },
           "status": {
+            "description": "Lifecycle status of the rule.",
             "type": "string",
             "enum": [
               "draft",
@@ -9866,9 +10184,11 @@
             ]
           },
           "version": {
+            "description": "Incrementing version for rule revisions.",
             "type": "integer"
           },
           "catalog_id": {
+            "description": "Catalog identifier this rule belongs to.",
             "type": "string"
           },
           "created_at": {
@@ -9893,12 +10213,15 @@
         ]
       },
       "RuleClause": {
+        "description": "Single clause inside a rule condition tree.",
         "type": "object",
         "properties": {
           "field": {
+            "description": "Product field key evaluated by this clause.",
             "type": "string"
           },
           "op": {
+            "description": "Comparison operator for this clause.",
             "type": "string",
             "enum": [
               "eq",
@@ -9914,6 +10237,7 @@
             ]
           },
           "value": {
+            "description": "Expected value to compare against the selected field.",
             "anyOf": [
               {
                 "type": "string"
@@ -9937,9 +10261,11 @@
         ]
       },
       "RuleConditions": {
+        "description": "Boolean condition tree evaluated to determine rule matches.",
         "type": "object",
         "properties": {
           "operator": {
+            "description": "Top-level boolean operator that joins all clauses.",
             "type": "string",
             "enum": [
               "AND",
@@ -9947,6 +10273,7 @@
             ]
           },
           "clauses": {
+            "description": "Collection of comparison clauses under the selected operator.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RuleClause"
@@ -9959,27 +10286,35 @@
         ]
       },
       "RuleCreateRequest": {
+        "description": "Payload used to create a catalog rule.",
         "type": "object",
         "properties": {
           "name": {
+            "description": "Rule display name.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable explanation of the rule.",
             "type": "string"
           },
           "type": {
+            "description": "Rule classification/type.",
             "type": "string"
           },
           "conditions": {
+            "description": "Condition tree evaluated for this rule.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "priority": {
+            "description": "Evaluation priority.",
             "type": "integer"
           },
           "status": {
+            "description": "Initial lifecycle status.",
             "type": "string"
           },
           "catalog_id": {
+            "description": "Catalog identifier this rule belongs to.",
             "type": "string"
           }
         },
@@ -9989,35 +10324,45 @@
         ]
       },
       "RuleUpdateRequest": {
+        "description": "Payload used to update an existing catalog rule. All fields are optional.",
         "type": "object",
         "properties": {
           "name": {
+            "description": "Rule display name.",
             "type": "string"
           },
           "description": {
+            "description": "Human-readable explanation of the rule.",
             "type": "string"
           },
           "type": {
+            "description": "Rule classification/type.",
             "type": "string"
           },
           "conditions": {
+            "description": "Condition tree evaluated for this rule.",
             "$ref": "#/components/schemas/RuleConditions"
           },
           "priority": {
+            "description": "Evaluation priority.",
             "type": "integer"
           },
           "status": {
+            "description": "Lifecycle status.",
             "type": "string"
           },
           "catalog_id": {
+            "description": "Catalog identifier this rule belongs to.",
             "type": "string"
           }
         }
       },
       "RulesListResponse": {
+        "description": "List response for catalog rules.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Catalog rules matching the query.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Rule"
