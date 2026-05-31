@@ -1107,13 +1107,14 @@
     "/countries": {
       "get": {
         "summary": "List countries",
+        "description": "Returns the countries supported by the catalog system for market setup and localization flows.",
         "operationId": "listCountries",
         "tags": [
           "Countries"
         ],
         "responses": {
           "200": {
-            "description": "Country list.",
+            "description": "Supported country list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1134,13 +1135,14 @@
     "/currency-rates": {
       "get": {
         "summary": "List saved tenant currency rates",
+        "description": "Lists tenant-saved currency conversion pairs used for market pricing and sync operations.",
         "operationId": "listSavedCurrencyRates",
         "tags": [
           "Currency Rates"
         ],
         "responses": {
           "200": {
-            "description": "Saved currency rates.",
+            "description": "Saved currency conversion pairs for the tenant.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1159,11 +1161,13 @@
       },
       "put": {
         "summary": "Save or update a currency rate pair",
+        "description": "Creates or updates one saved currency conversion pair.",
         "operationId": "upsertSavedCurrencyRate",
         "tags": [
           "Currency Rates"
         ],
         "requestBody": {
+          "description": "Currency pair and conversion rate to upsert.",
           "required": true,
           "content": {
             "application/json": {
@@ -1175,7 +1179,7 @@
         },
         "responses": {
           "200": {
-            "description": "Saved currency rate.",
+            "description": "Saved currency conversion pair.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1199,13 +1203,14 @@
     "/currency-rates/live": {
       "get": {
         "summary": "List tenant pairwise live currency rates",
+        "description": "Returns computed live pairwise rates for the tenant's active currency set.",
         "operationId": "listLiveCurrencyRates",
         "tags": [
           "Currency Rates"
         ],
         "responses": {
           "200": {
-            "description": "Live currency rates.",
+            "description": "Live currency rates plus missing/stale metadata.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1236,11 +1241,13 @@
     "/currency-rates/sync-markets": {
       "post": {
         "summary": "Sync market fx rates from saved currency rates",
+        "description": "Applies saved FX rates to market records and returns a sync summary.",
         "operationId": "syncMarketsFromSavedCurrencyRates",
         "tags": [
           "Currency Rates"
         ],
         "requestBody": {
+          "description": "Optional sync configuration, including override base currency.",
           "required": false,
           "content": {
             "application/json": {
@@ -1252,7 +1259,7 @@
         },
         "responses": {
           "200": {
-            "description": "Sync summary.",
+            "description": "Market FX sync summary.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1276,6 +1283,7 @@
     "/currency-rates/{rate_id}": {
       "delete": {
         "summary": "Delete a saved currency rate",
+        "description": "Deletes one saved currency conversion pair.",
         "operationId": "deleteSavedCurrencyRate",
         "tags": [
           "Currency Rates"
@@ -1285,6 +1293,7 @@
             "name": "rate_id",
             "in": "path",
             "required": true,
+            "description": "Saved currency-rate identifier.",
             "schema": {
               "type": "string"
             }
@@ -2166,13 +2175,14 @@
     "/metafield-definitions": {
       "get": {
         "summary": "List metafield definitions",
+        "description": "Returns a paginated list of metafield definitions with optional owner, namespace, and pinned filters.",
         "operationId": "listMetafieldDefinitions",
         "tags": [
           "Metafield Definitions"
         ],
         "responses": {
           "200": {
-            "description": "Definition list.",
+            "description": "Paginated metafield definition list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2195,6 +2205,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2204,6 +2215,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of definitions per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2214,6 +2226,7 @@
           {
             "name": "owner_type",
             "in": "query",
+            "description": "Filter definitions by owner resource type.",
             "schema": {
               "type": "string",
               "enum": [
@@ -2228,6 +2241,7 @@
           {
             "name": "namespace",
             "in": "query",
+            "description": "Filter definitions by namespace (for example `custom`).",
             "schema": {
               "type": "string"
             }
@@ -2235,6 +2249,7 @@
           {
             "name": "pinned",
             "in": "query",
+            "description": "Filter by pinned/unpinned definitions.",
             "schema": {
               "type": "boolean"
             }
@@ -2242,6 +2257,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Optional free-text search across definition name/key/description.",
             "schema": {
               "type": "string"
             }
@@ -2249,6 +2265,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for definition list ordering.",
             "schema": {
               "type": "string",
               "enum": [
@@ -2263,13 +2280,14 @@
       },
       "post": {
         "summary": "Create metafield definition",
+        "description": "Creates a metafield definition describing key, owner type, value type, and validations.",
         "operationId": "createMetafieldDefinition",
         "tags": [
           "Metafield Definitions"
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Metafield definition created successfully. Returns the new identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2292,6 +2310,7 @@
           }
         },
         "requestBody": {
+          "description": "Metafield definition payload used to create a new definition.",
           "required": true,
           "content": {
             "application/json": {
@@ -2306,13 +2325,14 @@
     "/metafield-definitions/{definition_id}": {
       "delete": {
         "summary": "Delete metafield definition",
+        "description": "Deletes a metafield definition by identifier.",
         "operationId": "deleteMetafieldDefinition",
         "tags": [
           "Metafield Definitions"
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Metafield definition deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2339,6 +2359,7 @@
             "name": "definition_id",
             "in": "path",
             "required": true,
+            "description": "Metafield definition identifier.",
             "schema": {
               "type": "string"
             }
@@ -2347,13 +2368,14 @@
       },
       "get": {
         "summary": "Get metafield definition",
+        "description": "Fetches a single metafield definition by identifier.",
         "operationId": "getMetafieldDefinition",
         "tags": [
           "Metafield Definitions"
         ],
         "responses": {
           "200": {
-            "description": "Definition.",
+            "description": "Metafield definition document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2380,6 +2402,7 @@
             "name": "definition_id",
             "in": "path",
             "required": true,
+            "description": "Metafield definition identifier.",
             "schema": {
               "type": "string"
             }
@@ -2388,13 +2411,14 @@
       },
       "put": {
         "summary": "Update metafield definition",
+        "description": "Updates an existing metafield definition. Only provided fields are modified.",
         "operationId": "updateMetafieldDefinition",
         "tags": [
           "Metafield Definitions"
         ],
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Metafield definition updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2424,12 +2448,14 @@
             "name": "definition_id",
             "in": "path",
             "required": true,
+            "description": "Metafield definition identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial metafield definition payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -2444,13 +2470,14 @@
     "/metafields": {
       "get": {
         "summary": "List metafields for owner",
+        "description": "Returns metafield definitions and stored values for a specific owner entity.",
         "operationId": "listMetafields",
         "tags": [
           "Metafields"
         ],
         "responses": {
           "200": {
-            "description": "Definitions and values for owner.",
+            "description": "Metafield definitions and values for the requested owner.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2474,6 +2501,7 @@
             "name": "owner_type",
             "in": "query",
             "required": true,
+            "description": "Owner resource type whose metafields should be listed.",
             "schema": {
               "type": "string",
               "enum": [
@@ -2489,6 +2517,7 @@
             "name": "owner_id",
             "in": "query",
             "required": true,
+            "description": "Identifier of the owner resource.",
             "schema": {
               "type": "string"
             }
@@ -2497,13 +2526,14 @@
       },
       "post": {
         "summary": "Create or update metafield value",
+        "description": "Upserts a metafield value for an owner using a definition identifier.",
         "operationId": "upsertMetafieldValue",
         "tags": [
           "Metafields"
         ],
         "responses": {
           "200": {
-            "description": "Upsert result.",
+            "description": "Upsert outcome including whether an existing record matched.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2526,6 +2556,7 @@
           }
         },
         "requestBody": {
+          "description": "Metafield upsert payload containing definition, owner, and value.",
           "required": true,
           "content": {
             "application/json": {
@@ -2540,13 +2571,14 @@
     "/metafields/{metafield_id}": {
       "delete": {
         "summary": "Delete metafield value",
+        "description": "Deletes a specific metafield value record by identifier.",
         "operationId": "deleteMetafieldValue",
         "tags": [
           "Metafields"
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Metafield value deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2573,6 +2605,7 @@
             "name": "metafield_id",
             "in": "path",
             "required": true,
+            "description": "Metafield value identifier.",
             "schema": {
               "type": "string"
             }
@@ -2860,13 +2893,14 @@
     "/product-types": {
       "get": {
         "summary": "List product types",
+        "description": "Returns available product type/category pairs used in product forms and rule-builder filters.",
         "operationId": "listProductTypes",
         "tags": [
           "Product Types"
         ],
         "responses": {
           "200": {
-            "description": "Product type list.",
+            "description": "List of available product type/category pairs.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2889,6 +2923,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Optional case-insensitive search across product type and category labels.",
             "schema": {
               "type": "string"
             }
@@ -2897,13 +2932,14 @@
       },
       "post": {
         "summary": "Create product type",
+        "description": "Creates a product type definition with optional attribute-schema metadata.",
         "operationId": "createProductType",
         "tags": [
           "Product Types"
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Product type created successfully. Returns the new identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2926,6 +2962,7 @@
           }
         },
         "requestBody": {
+          "description": "Product type payload containing name/slug and optional attribute schema.",
           "required": true,
           "content": {
             "application/json": {
@@ -3951,13 +3988,14 @@
     "/taxonomies": {
       "get": {
         "summary": "List taxonomies",
+        "description": "Returns a paginated list of taxonomy groups with optional filtering by source and search text.",
         "operationId": "listTaxonomies",
         "tags": [
           "Taxonomies"
         ],
         "responses": {
           "200": {
-            "description": "Taxonomy list.",
+            "description": "Paginated taxonomy list for the current tenant.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3980,6 +4018,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -3989,6 +4028,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of taxonomy groups per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -3999,6 +4039,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Optional free-text search across taxonomy names and values.",
             "schema": {
               "type": "string"
             }
@@ -4006,6 +4047,7 @@
           {
             "name": "source",
             "in": "query",
+            "description": "Filter by taxonomy source (`system` for built-in, `custom` for tenant-created).",
             "schema": {
               "type": "string",
               "enum": [
@@ -4017,6 +4059,7 @@
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token for taxonomy list ordering.",
             "schema": {
               "type": "string",
               "enum": [
@@ -4031,13 +4074,14 @@
       },
       "post": {
         "summary": "Create taxonomy",
+        "description": "Creates a taxonomy group with a display name and optional value list.",
         "operationId": "createTaxonomy",
         "tags": [
           "Taxonomies"
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Taxonomy created successfully. Returns the new identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4060,6 +4104,7 @@
           }
         },
         "requestBody": {
+          "description": "Taxonomy payload used to create a taxonomy group.",
           "required": true,
           "content": {
             "application/json": {
@@ -4074,13 +4119,14 @@
     "/taxonomies/{taxonomy_id}": {
       "delete": {
         "summary": "Delete taxonomy",
+        "description": "Deletes a taxonomy by identifier.",
         "operationId": "deleteTaxonomy",
         "tags": [
           "Taxonomies"
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Taxonomy deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4110,6 +4156,7 @@
             "name": "taxonomy_id",
             "in": "path",
             "required": true,
+            "description": "Taxonomy identifier.",
             "schema": {
               "type": "string"
             }
@@ -4118,13 +4165,14 @@
       },
       "get": {
         "summary": "Get taxonomy",
+        "description": "Fetches a single taxonomy by identifier.",
         "operationId": "getTaxonomy",
         "tags": [
           "Taxonomies"
         ],
         "responses": {
           "200": {
-            "description": "Taxonomy.",
+            "description": "Taxonomy document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4151,6 +4199,7 @@
             "name": "taxonomy_id",
             "in": "path",
             "required": true,
+            "description": "Taxonomy identifier.",
             "schema": {
               "type": "string"
             }
@@ -4159,13 +4208,14 @@
       },
       "put": {
         "summary": "Update taxonomy",
+        "description": "Updates an existing taxonomy. Only provided fields are modified.",
         "operationId": "updateTaxonomy",
         "tags": [
           "Taxonomies"
         ],
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Taxonomy updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4198,12 +4248,14 @@
             "name": "taxonomy_id",
             "in": "path",
             "required": true,
+            "description": "Taxonomy identifier.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial taxonomy payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -5216,9 +5268,11 @@
         }
       },
       "Country": {
+        "description": "Country object returned by country APIs. Includes dynamic fields persisted for the tenant.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Country identifier.",
             "type": "string"
           }
         },
@@ -5228,9 +5282,11 @@
         "additionalProperties": true
       },
       "CountryListResponse": {
+        "description": "List response for supported countries.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Supported country records.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Country"
@@ -5242,12 +5298,15 @@
         ]
       },
       "CurrencyPair": {
+        "description": "Currency pair descriptor used in sync and missing-pair reporting.",
         "type": "object",
         "properties": {
           "from": {
+            "description": "Base/source currency code.",
             "type": "string"
           },
           "to": {
+            "description": "Target currency code.",
             "type": "string"
           }
         },
@@ -5257,15 +5316,19 @@
         ]
       },
       "CurrencyRatePair": {
+        "description": "Single currency conversion pair and resolved rate.",
         "type": "object",
         "properties": {
           "from": {
+            "description": "Base/source currency code.",
             "type": "string"
           },
           "to": {
+            "description": "Target currency code.",
             "type": "string"
           },
           "rate": {
+            "description": "Conversion rate from `from` to `to`.",
             "type": "number"
           }
         },
@@ -5276,21 +5339,25 @@
         ]
       },
       "CurrencyRateUpsertRequest": {
+        "description": "Payload used to create or update one saved currency conversion pair.",
         "type": "object",
         "properties": {
           "from": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 3
+            "maxLength": 3,
+            "description": "Base/source currency code."
           },
           "to": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 3
+            "maxLength": 3,
+            "description": "Target currency code."
           },
           "rate": {
             "type": "number",
-            "exclusiveMinimum": 0
+            "exclusiveMinimum": 0,
+            "description": "Positive conversion rate from `from` to `to`."
           }
         },
         "required": [
@@ -5300,30 +5367,36 @@
         ]
       },
       "CurrencyRatesResponse": {
+        "description": "Live currency-rate response for tenant currency pairs.",
         "type": "object",
         "properties": {
           "base": {
+            "description": "Base currency used for upstream live-rate normalization.",
             "type": "string"
           },
           "fetched_at": {
+            "description": "Timestamp when live rates were fetched from upstream provider.",
             "type": [
               "string",
               "null"
             ]
           },
           "rates": {
+            "description": "Resolved live conversion pairs.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CurrencyRatePair"
             }
           },
           "missing": {
+            "description": "Currencies or pairs that could not be resolved.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "stale": {
+            "description": "True when rates are returned from stale cache due to upstream issues.",
             "type": "boolean"
           }
         },
@@ -6429,9 +6502,11 @@
         ]
       },
       "MetafieldDefinition": {
+        "description": "Metafield definition object returned by definition APIs. Includes dynamic fields persisted for the tenant.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Metafield definition identifier.",
             "type": "string"
           }
         },
@@ -6442,23 +6517,27 @@
       },
       "MetafieldDefinitionCreate": {
         "additionalProperties": false,
+        "description": "Payload used to create a metafield definition.",
         "properties": {
           "namespace": {
             "default": "custom",
             "maxLength": 100,
             "minLength": 1,
+            "description": "Namespace used to group related definitions.",
             "title": "Namespace",
             "type": "string"
           },
           "key": {
             "maxLength": 100,
             "minLength": 1,
+            "description": "Unique key within the namespace.",
             "title": "Key",
             "type": "string"
           },
           "name": {
             "maxLength": 200,
             "minLength": 1,
+            "description": "Display name shown in admin surfaces.",
             "title": "Name",
             "type": "string"
           },
@@ -6470,6 +6549,7 @@
               "collection",
               "blog_post"
             ],
+            "description": "Owner resource type this definition applies to.",
             "title": "Owner Type",
             "type": "string"
           },
@@ -6486,6 +6566,7 @@
               "color",
               "json"
             ],
+            "description": "Value type expected for metafield values.",
             "title": "Type",
             "type": "string"
           },
@@ -6499,15 +6580,18 @@
               }
             ],
             "default": null,
+            "description": "Optional helper text describing intended usage.",
             "title": "Description"
           },
           "validations": {
             "additionalProperties": true,
+            "description": "Optional validation rules interpreted by backend/UI.",
             "title": "Validations",
             "type": "object"
           },
           "pinned": {
             "default": false,
+            "description": "Pins definition for quicker access in admin forms.",
             "title": "Pinned",
             "type": "boolean"
           }
@@ -6523,10 +6607,12 @@
       },
       "MetafieldDefinitionListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing metafield definitions.",
         "properties": {
           "page": {
             "default": 1,
             "minimum": 1,
+            "description": "Page number (1-based).",
             "title": "Page",
             "type": "integer"
           },
@@ -6534,6 +6620,7 @@
             "default": 50,
             "maximum": 100,
             "minimum": 1,
+            "description": "Number of definitions per page.",
             "title": "Size",
             "type": "integer"
           },
@@ -6554,6 +6641,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by owner resource type.",
             "title": "Owner Type"
           },
           "namespace": {
@@ -6566,6 +6654,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by namespace.",
             "title": "Namespace"
           },
           "pinned": {
@@ -6578,6 +6667,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by pinned flag.",
             "title": "Pinned"
           },
           "search": {
@@ -6590,6 +6680,7 @@
               }
             ],
             "default": null,
+            "description": "Optional free-text search across key/name/description.",
             "title": "Search"
           },
           "sort_by": {
@@ -6600,6 +6691,7 @@
               "created_at_asc",
               "created_at_desc"
             ],
+            "description": "Sort token for definition list ordering.",
             "title": "Sort By",
             "type": "string"
           }
@@ -6608,15 +6700,18 @@
         "type": "object"
       },
       "MetafieldDefinitionListResponse": {
+        "description": "Paginated metafield definition list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Metafield definition records for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MetafieldDefinition"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -6627,6 +6722,7 @@
       },
       "MetafieldDefinitionUpdate": {
         "additionalProperties": false,
+        "description": "Payload used to update an existing metafield definition. All fields are optional.",
         "properties": {
           "namespace": {
             "anyOf": [
@@ -6640,6 +6736,7 @@
               }
             ],
             "default": null,
+            "description": "Updated namespace.",
             "title": "Namespace"
           },
           "key": {
@@ -6654,6 +6751,7 @@
               }
             ],
             "default": null,
+            "description": "Updated key within the namespace.",
             "title": "Key"
           },
           "name": {
@@ -6668,6 +6766,7 @@
               }
             ],
             "default": null,
+            "description": "Updated display name.",
             "title": "Name"
           },
           "owner_type": {
@@ -6687,6 +6786,7 @@
               }
             ],
             "default": null,
+            "description": "Updated owner resource type.",
             "title": "Owner Type"
           },
           "type": {
@@ -6711,6 +6811,7 @@
               }
             ],
             "default": null,
+            "description": "Updated value type.",
             "title": "Type"
           },
           "description": {
@@ -6723,6 +6824,7 @@
               }
             ],
             "default": null,
+            "description": "Updated helper text.",
             "title": "Description"
           },
           "validations": {
@@ -6736,6 +6838,7 @@
               }
             ],
             "default": null,
+            "description": "Updated validation rules.",
             "title": "Validations"
           },
           "pinned": {
@@ -6748,6 +6851,7 @@
               }
             ],
             "default": null,
+            "description": "Updated pinned state.",
             "title": "Pinned"
           }
         },
@@ -6756,6 +6860,7 @@
       },
       "MetafieldListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing metafields for a specific owner.",
         "properties": {
           "owner_type": {
             "enum": [
@@ -6765,11 +6870,13 @@
               "collection",
               "blog_post"
             ],
+            "description": "Owner resource type whose metafields are requested.",
             "title": "Owner Type",
             "type": "string"
           },
           "owner_id": {
             "minLength": 1,
+            "description": "Identifier of the owner resource.",
             "title": "Owner Id",
             "type": "string"
           }
@@ -6782,15 +6889,18 @@
         "type": "object"
       },
       "MetafieldListResponse": {
+        "description": "Combined response containing metafield definitions and owner values.",
         "type": "object",
         "properties": {
           "definitions": {
+            "description": "Definitions relevant to the requested owner type.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MetafieldDefinition"
             }
           },
           "values": {
+            "description": "Stored metafield values for the requested owner.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MetafieldValue"
@@ -6804,18 +6914,22 @@
       },
       "MetafieldUpsert": {
         "additionalProperties": false,
+        "description": "Payload used to create or update a metafield value for an owner.",
         "properties": {
           "definition_id": {
+            "description": "Metafield definition identifier that governs value type/validation.",
             "title": "Definition Id",
             "type": "string"
           },
           "owner_id": {
             "minLength": 1,
+            "description": "Identifier of the owner resource receiving this metafield value.",
             "title": "Owner Id",
             "type": "string"
           },
           "value": {
             "default": "",
+            "description": "Serialized metafield value stored against the owner.",
             "title": "Value",
             "type": "string"
           }
@@ -6828,12 +6942,15 @@
         "type": "object"
       },
       "MetafieldUpsertResponse": {
+        "description": "Outcome of a metafield upsert operation.",
         "type": "object",
         "properties": {
           "matched": {
+            "description": "True when an existing value matched and was updated; false when inserted.",
             "type": "boolean"
           },
           "upserted_id": {
+            "description": "Identifier of the inserted value when no match existed.",
             "type": "string"
           }
         },
@@ -6842,9 +6959,11 @@
         ]
       },
       "MetafieldValue": {
+        "description": "Metafield value object returned by metafield APIs. Includes dynamic fields persisted for the tenant.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Metafield value identifier.",
             "type": "string"
           }
         },
@@ -6921,11 +7040,370 @@
         ]
       },
       "Product": {
-        "description": "Product object returned by product APIs. Includes dynamic fields persisted for the tenant.",
+        "description": "Product object returned by product APIs, including identity, merchandising, inventory, media, pricing, and membership metadata.",
         "type": "object",
         "properties": {
           "id": {
-            "description": "String form of the product identifier.",
+            "description": "Internal CMS product identifier (string form of Mongo `_id`).",
+            "type": "string"
+          },
+          "external_product_id": {
+            "description": "External/store product identifier mirrored from the source system when present.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "name": {
+            "description": "Display name shown in product listings and detail views.",
+            "type": "string"
+          },
+          "description_html": {
+            "description": "Rich HTML description content for storefront rendering.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Plain text or editor-safe description value.",
+            "type": "string"
+          },
+          "short_description_html": {
+            "description": "Short rich HTML summary used in cards and previews.",
+            "type": "string"
+          },
+          "short_description": {
+            "description": "Short plain text summary of the product.",
+            "type": "string"
+          },
+          "sku": {
+            "description": "Top-level SKU used as the primary product identifier in operations.",
+            "type": "string"
+          },
+          "model_number": {
+            "description": "Optional manufacturer or internal model number.",
+            "type": "string"
+          },
+          "barcode": {
+            "description": "Optional scannable barcode value for fulfillment/inventory systems.",
+            "type": "string"
+          },
+          "fulfillment_type": {
+            "description": "Fulfillment mode controlling physical/digital/service behavior.",
+            "type": "string",
+            "enum": [
+              "physical",
+              "digital",
+              "service"
+            ]
+          },
+          "status": {
+            "description": "Lifecycle status used for draft/publish/archive workflows.",
+            "type": "string",
+            "enum": [
+              "active",
+              "draft",
+              "archived"
+            ]
+          },
+          "currency": {
+            "description": "Display currency code resolved for the product context.",
+            "type": "string"
+          },
+          "currency_symbol": {
+            "description": "Currency symbol used for formatted price display.",
+            "type": "string"
+          },
+          "price": {
+            "description": "Primary selling price (kept in sync from first variation when variations exist).",
+            "type": "number",
+            "minimum": 0
+          },
+          "regular_price": {
+            "description": "Compare-at/list price used for discount and strike-through display.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "cost_per_item": {
+            "description": "Internal unit cost used for margin analytics.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "tax_class": {
+            "description": "Tax class value used by downstream tax handling.",
+            "type": "string"
+          },
+          "on_sale": {
+            "description": "Derived flag indicating `price` is lower than `regular_price`.",
+            "type": "boolean"
+          },
+          "categories": {
+            "description": "Structured taxonomy category entries assigned to the product.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "tags": {
+            "description": "Free-form tags used for grouping and filtering.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "vendor": {
+            "description": "Supplier or brand value associated with this product.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "product_type": {
+            "description": "Classifier title stored directly on the product for filtering and rules.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "category": {
+            "description": "Selected category label (from taxonomy source) stored on the product.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attributes": {
+            "description": "Product attribute definitions and selected options.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttribute"
+            }
+          },
+          "taxonomies": {
+            "description": "Additional taxonomy-like attribute groups attached to the product.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttribute"
+            }
+          },
+          "media": {
+            "description": "Primary media assets (images/videos) with metadata.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductMedia"
+            }
+          },
+          "images": {
+            "description": "Flattened image URLs derived from `media` for compatibility consumers.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "main_image": {
+            "description": "Primary image URL; defaults to the first image URL when available.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "description": "Variant strategy for the product.",
+            "type": "string",
+            "enum": [
+              "simple",
+              "variable"
+            ]
+          },
+          "variations": {
+            "description": "Variation rows containing SKU/price/stock and variation-specific metadata.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariation"
+            }
+          },
+          "manage_stock": {
+            "description": "Enables inventory tracking when true.",
+            "type": "boolean"
+          },
+          "stock_quantity": {
+            "description": "Available stock count for simple products or summary contexts.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "stock_status": {
+            "description": "Inventory state used for storefront and admin stock indicators.",
+            "type": "string",
+            "enum": [
+              "instock",
+              "lowstock",
+              "outofstock",
+              "onbackorder"
+            ]
+          },
+          "low_stock_threshold": {
+            "description": "Threshold under which product stock is considered low.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "allow_backorders": {
+            "description": "Allows order placement when inventory is depleted.",
+            "type": "boolean"
+          },
+          "total_sales": {
+            "description": "Lifetime sold quantity tracked for analytics and reporting.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "shipping_mode": {
+            "description": "Shipping configuration mode (`single` or `per-variant`).",
+            "type": "string",
+            "enum": [
+              "single",
+              "per-variant"
+            ]
+          },
+          "weight": {
+            "description": "Default product shipping weight when using single shipping mode.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "weight_unit": {
+            "description": "Weight unit used with `weight`.",
+            "type": "string"
+          },
+          "dimensions": {
+            "description": "Default product dimensions for shipping calculations.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ProductDimensions"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "packaging": {
+            "description": "Packaging metadata associated with the product shipping profile.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seo": {
+            "description": "SEO metadata attached to the product.",
+            "$ref": "#/components/schemas/ProductSeo"
+          },
+          "exclude_from_sitemap": {
+            "description": "When true, excludes product URL from generated sitemaps.",
+            "type": "boolean"
+          },
+          "monetization_config": {
+            "description": "Monetization plan-type configuration keyed by market.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MonetizationConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan_code": {
+            "description": "Attached billing/plan code when monetization is configured.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "description": "Internal notes maintained by merchandising or operations teams.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scheduled_at": {
+            "description": "Scheduled publish datetime in ISO format when applicable.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "catalog_ids": {
+            "description": "Catalog membership IDs denormalized on the product.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "collections": {
+            "description": "Collection memberships as hydrated objects (`_id`, `id`, `name`, `slug`).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCollection"
+            }
+          },
+          "membership_synced_at": {
+            "description": "ISO timestamp of the last successful membership sync run for this product.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "average_rating": {
+            "description": "Average review score aggregated from product reviews.",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "average_rating_out_of": {
+            "description": "Maximum score scale used for `average_rating`.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "review_count": {
+            "description": "Total number of reviews counted for this product.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "website_id": {
+            "description": "Tenant website identifier owning this product.",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "User identifier of the creator in this CMS tenant.",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Creation timestamp in ISO-8601 format.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp in ISO-8601 format.",
             "type": "string"
           }
         },
@@ -8139,7 +8617,6 @@
           }
         },
         "required": [
-          "magic_product_id",
           "name",
           "fulfillment_type",
           "price",
@@ -8899,12 +9376,15 @@
         "type": "object"
       },
       "ProductType": {
+        "description": "Product type/category pair used for product classification and filtering.",
         "type": "object",
         "properties": {
           "product_type": {
+            "description": "Scalar product type label shown in product forms and filters.",
             "type": "string"
           },
           "category": {
+            "description": "Category label associated with the product type.",
             "type": "string"
           }
         },
@@ -8989,10 +9469,12 @@
           }
         },
         "additionalProperties": false,
+        "description": "Payload used to create a product type definition.",
         "properties": {
           "name": {
             "maxLength": 200,
             "minLength": 1,
+            "description": "Display name of the product type.",
             "title": "Name",
             "type": "string"
           },
@@ -9000,10 +9482,12 @@
             "maxLength": 200,
             "minLength": 1,
             "pattern": "^[a-z0-9-]+$",
+            "description": "URL-safe slug key for the product type.",
             "title": "Slug",
             "type": "string"
           },
           "attribute_schema": {
+            "description": "Optional attribute schema used to drive dynamic attributes for this type.",
             "$ref": "#/components/schemas/AttributeSchema"
           }
         },
@@ -9016,6 +9500,7 @@
       },
       "ProductTypeListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing product types.",
         "properties": {
           "search": {
             "anyOf": [
@@ -9027,6 +9512,7 @@
               }
             ],
             "default": null,
+            "description": "Optional free-text search across type/category labels.",
             "title": "Search"
           }
         },
@@ -9034,9 +9520,11 @@
         "type": "object"
       },
       "ProductTypeListResponse": {
+        "description": "List response for product type/category pairs.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Available product type/category rows.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductType"
@@ -9123,6 +9611,7 @@
           }
         },
         "additionalProperties": false,
+        "description": "Payload used to update an existing product type. All fields are optional.",
         "properties": {
           "name": {
             "anyOf": [
@@ -9136,6 +9625,7 @@
               }
             ],
             "default": null,
+            "description": "Updated display name of the product type.",
             "title": "Name"
           },
           "slug": {
@@ -9151,6 +9641,7 @@
               }
             ],
             "default": null,
+            "description": "Updated URL-safe slug key.",
             "title": "Slug"
           },
           "attribute_schema": {
@@ -9162,7 +9653,8 @@
                 "type": "null"
               }
             ],
-            "default": null
+            "default": null,
+            "description": "Updated attribute schema or `null` to clear."
           }
         },
         "title": "ProductTypeUpdate",
@@ -10374,27 +10866,34 @@
         ]
       },
       "SavedCurrencyRate": {
+        "description": "Tenant-saved currency conversion pair.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Saved rate identifier.",
             "type": "string"
           },
           "from": {
+            "description": "Base/source currency code.",
             "type": "string"
           },
           "to": {
+            "description": "Target currency code.",
             "type": "string"
           },
           "rate": {
+            "description": "Saved conversion rate from `from` to `to`.",
             "type": "number"
           },
           "created_at": {
+            "description": "Creation timestamp for this saved pair.",
             "type": [
               "string",
               "null"
             ]
           },
           "updated_at": {
+            "description": "Last update timestamp for this saved pair.",
             "type": [
               "string",
               "null"
@@ -10409,9 +10908,11 @@
         ]
       },
       "SavedCurrencyRatesResponse": {
+        "description": "List response for tenant-saved currency rates.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Saved currency conversion pairs.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SavedCurrencyRate"
@@ -10423,28 +10924,35 @@
         ]
       },
       "SyncMarketsRequest": {
+        "description": "Optional payload controlling market FX sync behavior.",
         "type": "object",
         "properties": {
           "base_currency": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 3
+            "maxLength": 3,
+            "description": "Optional base currency override used during sync."
           }
         }
       },
       "SyncMarketsResponse": {
+        "description": "Summary response for syncing saved currency rates into markets.",
         "type": "object",
         "properties": {
           "base_currency": {
+            "description": "Base currency used for this sync run.",
             "type": "string"
           },
           "updated_count": {
+            "description": "Number of market rates updated.",
             "type": "integer"
           },
           "skipped_count": {
+            "description": "Number of market rates skipped.",
             "type": "integer"
           },
           "missing_pairs": {
+            "description": "Currency pairs required by markets but missing from saved rates.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CurrencyPair"
@@ -10459,9 +10967,11 @@
         ]
       },
       "Taxonomy": {
+        "description": "Taxonomy object returned by taxonomy APIs. Includes dynamic fields persisted for the tenant.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "Taxonomy identifier.",
             "type": "string"
           }
         },
@@ -10472,14 +10982,17 @@
       },
       "TaxonomyCreate": {
         "additionalProperties": false,
+        "description": "Payload used to create a taxonomy group.",
         "properties": {
           "name": {
             "maxLength": 200,
             "minLength": 1,
+            "description": "Display name of the taxonomy group.",
             "title": "Name",
             "type": "string"
           },
           "values": {
+            "description": "Optional initial list of taxonomy values.",
             "items": {
               "type": "string"
             },
@@ -10495,10 +11008,12 @@
       },
       "TaxonomyListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing taxonomies with filters and pagination.",
         "properties": {
           "page": {
             "default": 1,
             "minimum": 1,
+            "description": "Page number (1-based).",
             "title": "Page",
             "type": "integer"
           },
@@ -10506,6 +11021,7 @@
             "default": 50,
             "maximum": 100,
             "minimum": 1,
+            "description": "Number of taxonomy groups per page.",
             "title": "Size",
             "type": "integer"
           },
@@ -10519,6 +11035,7 @@
               }
             ],
             "default": null,
+            "description": "Optional free-text search across taxonomy names and values.",
             "title": "Search"
           },
           "source": {
@@ -10535,6 +11052,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by taxonomy source (`system` or `custom`).",
             "title": "Source"
           },
           "sort_by": {
@@ -10545,6 +11063,7 @@
               "created_at_asc",
               "created_at_desc"
             ],
+            "description": "Sort token for taxonomy list ordering.",
             "title": "Sort By",
             "type": "string"
           }
@@ -10553,15 +11072,18 @@
         "type": "object"
       },
       "TaxonomyListResponse": {
+        "description": "Paginated taxonomy list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Taxonomy records for the current page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Taxonomy"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -10572,6 +11094,7 @@
       },
       "TaxonomyUpdate": {
         "additionalProperties": false,
+        "description": "Payload used to update an existing taxonomy. All fields are optional.",
         "properties": {
           "name": {
             "anyOf": [
@@ -10585,6 +11108,7 @@
               }
             ],
             "default": null,
+            "description": "Updated taxonomy name.",
             "title": "Name"
           },
           "values": {
@@ -10600,6 +11124,7 @@
               }
             ],
             "default": null,
+            "description": "Updated taxonomy value list.",
             "title": "Values"
           }
         },
