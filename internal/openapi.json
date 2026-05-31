@@ -2819,6 +2819,7 @@
     "/products": {
       "get": {
         "summary": "List products",
+        "description": "Returns a paginated list of products. Supports text search and filters for workflow status, stock state, attributes, category, and product type.",
         "operationId": "listProducts",
         "tags": [
           "Products",
@@ -2826,7 +2827,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Product list.",
+            "description": "Paginated product list matching the supplied filters.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2849,6 +2850,7 @@
           {
             "name": "page",
             "in": "query",
+            "description": "Page number (1-based).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2858,6 +2860,7 @@
           {
             "name": "size",
             "in": "query",
+            "description": "Number of items per page.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2868,6 +2871,7 @@
           {
             "name": "search",
             "in": "query",
+            "description": "Free-text search across indexed product fields (for example name and SKU).",
             "schema": {
               "type": "string"
             }
@@ -2875,6 +2879,7 @@
           {
             "name": "status",
             "in": "query",
+            "description": "Filter by product workflow status.",
             "schema": {
               "type": "string",
               "enum": [
@@ -2887,6 +2892,7 @@
           {
             "name": "stock",
             "in": "query",
+            "description": "Filter by stock state.",
             "schema": {
               "type": "string",
               "enum": [
@@ -2903,11 +2909,12 @@
             "schema": {
               "type": "string"
             },
-            "description": "JSON object string."
+            "description": "JSON object (stringified) where keys are attribute names and values are expected attribute values."
           },
           {
             "name": "sort_by",
             "in": "query",
+            "description": "Sort token used by the products service (for example `name_asc`).",
             "schema": {
               "type": "string"
             }
@@ -2915,6 +2922,7 @@
           {
             "name": "product_type",
             "in": "query",
+            "description": "Filter by the scalar product type stored on product documents.",
             "schema": {
               "type": "string"
             }
@@ -2922,6 +2930,7 @@
           {
             "name": "category",
             "in": "query",
+            "description": "Filter by the scalar category stored on product documents.",
             "schema": {
               "type": "string"
             }
@@ -2930,6 +2939,7 @@
       },
       "post": {
         "summary": "Create product",
+        "description": "Creates a new product with pricing, inventory, classification, media, and optional monetization metadata.",
         "operationId": "createProduct",
         "tags": [
           "Products",
@@ -2937,7 +2947,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Product created successfully. Returns the created product identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2960,6 +2970,7 @@
           }
         },
         "requestBody": {
+          "description": "Product payload used to create a new product record.",
           "required": true,
           "content": {
             "application/json": {
@@ -3366,6 +3377,7 @@
     "/products/duplicate": {
       "post": {
         "summary": "Duplicate product",
+        "description": "Creates a new product by cloning an existing product and re-generating system-managed identifiers.",
         "operationId": "duplicateProduct",
         "tags": [
           "Products",
@@ -3373,7 +3385,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Created.",
+            "description": "Product duplicate created successfully. Returns the new product identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3396,6 +3408,7 @@
           }
         },
         "requestBody": {
+          "description": "Identifier of the source product that should be duplicated.",
           "required": true,
           "content": {
             "application/json": {
@@ -3672,6 +3685,7 @@
     "/products/{product_id}": {
       "delete": {
         "summary": "Delete product",
+        "description": "Deletes a product by identifier.",
         "operationId": "deleteProduct",
         "tags": [
           "Products",
@@ -3679,7 +3693,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Product deleted successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3706,6 +3720,7 @@
             "name": "product_id",
             "in": "path",
             "required": true,
+            "description": "Either the product's ObjectId (`_id`) or its external integer `id` as a string.",
             "schema": {
               "type": "string"
             }
@@ -3714,6 +3729,7 @@
       },
       "get": {
         "summary": "Get product",
+        "description": "Fetches a single product by identifier.",
         "operationId": "getProduct",
         "tags": [
           "Products",
@@ -3721,7 +3737,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Product.",
+            "description": "Complete product document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3748,6 +3764,7 @@
             "name": "product_id",
             "in": "path",
             "required": true,
+            "description": "Either the product's ObjectId (_id) or its integer external id.",
             "schema": {
               "type": "string"
             }
@@ -3756,6 +3773,7 @@
       },
       "put": {
         "summary": "Update product",
+        "description": "Updates one product. Only provided fields are updated.",
         "operationId": "updateProduct",
         "tags": [
           "Products",
@@ -3763,7 +3781,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Updated.",
+            "description": "Product updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3790,12 +3808,14 @@
             "name": "product_id",
             "in": "path",
             "required": true,
+            "description": "Either the product's ObjectId (`_id`) or its external integer `id` as a string.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "requestBody": {
+          "description": "Partial product payload containing fields to update.",
           "required": true,
           "content": {
             "application/json": {
@@ -6621,9 +6641,11 @@
         ]
       },
       "Product": {
+        "description": "Product object returned by product APIs. Includes dynamic fields persisted for the tenant.",
         "type": "object",
         "properties": {
           "id": {
+            "description": "String form of the product identifier.",
             "type": "string"
           }
         },
@@ -7499,14 +7521,17 @@
           }
         },
         "additionalProperties": false,
+        "description": "Payload used to create a product.",
         "properties": {
           "name": {
             "minLength": 1,
+            "description": "Display name of the product.",
             "title": "Name",
             "type": "string"
           },
           "description": {
             "default": "",
+            "description": "Long-form product description.",
             "title": "Description",
             "type": "string"
           },
@@ -7520,6 +7545,7 @@
               }
             ],
             "default": null,
+            "description": "Top-level SKU; can be auto-derived from variations for variable products.",
             "title": "Sku"
           },
           "model_number": {
@@ -7552,6 +7578,7 @@
               "digital",
               "service"
             ],
+            "description": "How the product is fulfilled.",
             "title": "Fulfillment Type",
             "type": "string"
           },
@@ -7562,11 +7589,13 @@
               "draft",
               "archived"
             ],
+            "description": "Lifecycle state used for publishing workflows.",
             "title": "Status",
             "type": "string"
           },
           "price": {
             "minimum": 0,
+            "description": "Primary selling price.",
             "title": "Price",
             "type": "number"
           },
@@ -7581,6 +7610,7 @@
               }
             ],
             "default": null,
+            "description": "Original/list price used for comparison and strike-through pricing.",
             "title": "Regular Price"
           },
           "cost_per_item": {
@@ -7611,6 +7641,7 @@
               }
             ],
             "default": null,
+            "description": "Selected category label stored directly on the product.",
             "title": "Category"
           },
           "categories": {
@@ -7624,6 +7655,7 @@
             "items": {
               "$ref": "#/components/schemas/ProductCollection"
             },
+            "description": "Collection memberships as hydrated objects (`_id`, `id`, `name`, `slug`).",
             "title": "Collections",
             "type": "array"
           },
@@ -7822,6 +7854,7 @@
               }
             ],
             "default": null,
+            "description": "Selected product type stored directly on the product.",
             "title": "Product Type"
           }
         },
@@ -7860,8 +7893,10 @@
       },
       "ProductDuplicateRequest": {
         "additionalProperties": false,
+        "description": "Payload to duplicate an existing product.",
         "properties": {
           "product_id": {
+            "description": "Source product identifier to duplicate.",
             "type": "string"
           }
         },
@@ -7901,10 +7936,12 @@
       },
       "ProductListQuery": {
         "additionalProperties": false,
+        "description": "Query payload equivalent for listing products with pagination, search, and filters.",
         "properties": {
           "page": {
             "default": 1,
             "minimum": 1,
+            "description": "Page number (1-based).",
             "title": "Page",
             "type": "integer"
           },
@@ -7912,6 +7949,7 @@
             "default": 15,
             "maximum": 100,
             "minimum": 1,
+            "description": "Number of items per page.",
             "title": "Size",
             "type": "integer"
           },
@@ -7925,6 +7963,7 @@
               }
             ],
             "default": null,
+            "description": "Free-text search term.",
             "title": "Search"
           },
           "status": {
@@ -7942,6 +7981,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by product workflow status.",
             "title": "Status"
           },
           "stock": {
@@ -7960,17 +8000,20 @@
               }
             ],
             "default": null,
+            "description": "Filter by stock state.",
             "title": "Stock"
           },
           "attribute_filters": {
             "additionalProperties": {
               "type": "string"
             },
+            "description": "Attribute filter map where each key/value pair must match product attribute data.",
             "title": "Attribute Filters",
             "type": "object"
           },
           "sort_by": {
             "default": "name_asc",
+            "description": "Sort token used by products listing.",
             "title": "Sort By",
             "type": "string"
           },
@@ -7984,6 +8027,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by scalar product type.",
             "title": "Product Type"
           },
           "category": {
@@ -7996,6 +8040,7 @@
               }
             ],
             "default": null,
+            "description": "Filter by scalar category.",
             "title": "Category"
           }
         },
@@ -8003,15 +8048,18 @@
         "type": "object"
       },
       "ProductListResponse": {
+        "description": "Paginated product list response.",
         "type": "object",
         "properties": {
           "items": {
+            "description": "Products in the requested page.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Product"
             }
           },
           "pagination": {
+            "description": "Pagination metadata for the current query.",
             "$ref": "#/components/schemas/Pagination"
           }
         },
@@ -9107,6 +9155,7 @@
           }
         },
         "additionalProperties": false,
+        "description": "Payload used to update an existing product. All fields are optional.",
         "properties": {
           "name": {
             "anyOf": [
@@ -9119,6 +9168,7 @@
               }
             ],
             "default": null,
+            "description": "Display name of the product.",
             "title": "Name"
           },
           "description": {
@@ -9131,6 +9181,7 @@
               }
             ],
             "default": null,
+            "description": "Long-form product description.",
             "title": "Description"
           },
           "sku": {
@@ -9144,6 +9195,7 @@
               }
             ],
             "default": null,
+            "description": "Top-level SKU value for the product.",
             "title": "Sku"
           },
           "model_number": {
@@ -9185,6 +9237,7 @@
               }
             ],
             "default": null,
+            "description": "How the product is fulfilled.",
             "title": "Fulfillment Type"
           },
           "status": {
@@ -9202,6 +9255,7 @@
               }
             ],
             "default": null,
+            "description": "Lifecycle state used for publishing workflows.",
             "title": "Status"
           },
           "price": {
@@ -9215,6 +9269,7 @@
               }
             ],
             "default": null,
+            "description": "Primary selling price.",
             "title": "Price"
           },
           "regular_price": {
@@ -9228,6 +9283,7 @@
               }
             ],
             "default": null,
+            "description": "Original/list price used for comparison and strike-through pricing.",
             "title": "Regular Price"
           },
           "cost_per_item": {
@@ -9265,6 +9321,7 @@
               }
             ],
             "default": null,
+            "description": "Selected category label stored directly on the product.",
             "title": "Category"
           },
           "categories": {
@@ -9295,6 +9352,7 @@
               }
             ],
             "default": null,
+            "description": "Collection memberships as hydrated objects (`_id`, `id`, `name`, `slug`).",
             "title": "Collections"
           },
           "tags": {
@@ -9612,6 +9670,7 @@
               }
             ],
             "default": null,
+            "description": "Selected product type stored directly on the product.",
             "title": "Product Type"
           }
         },
