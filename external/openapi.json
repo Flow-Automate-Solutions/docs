@@ -1375,11 +1375,49 @@
         }
       },
       "Country": {
-        "description": "Country object returned by country APIs. Includes dynamic fields persisted for the tenant.",
+        "description": "Country object returned by countries APIs.",
         "type": "object",
         "properties": {
           "id": {
             "description": "Country identifier.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Display country name.",
+            "type": "string"
+          },
+          "official_name": {
+            "description": "Official/legal country name.",
+            "type": "string"
+          },
+          "country_code": {
+            "description": "ISO country code.",
+            "type": "string"
+          },
+          "currencies": {
+            "description": "Supported currencies for this country.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "symbol": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "created_at": {
+            "description": "Creation timestamp in ISO format.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp in ISO format.",
             "type": "string"
           }
         },
@@ -1555,11 +1593,105 @@
         ]
       },
       "Market": {
-        "description": "Market object returned by market APIs. Includes dynamic tenant-specific fields.",
+        "description": "Market object returned by market APIs with pricing, region, and activation settings.",
         "type": "object",
         "properties": {
           "id": {
-            "description": "String form of the market identifier.",
+            "description": "Market identifier.",
+            "type": "string"
+          },
+          "cms_id": {
+            "description": "Tenant CMS identifier that owns this market.",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "User identifier that created this market.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Display name of the market.",
+            "type": "string"
+          },
+          "country_code": {
+            "description": "ISO 2-letter country code for the market.",
+            "type": "string"
+          },
+          "currency": {
+            "description": "ISO 3-letter currency code used in this market.",
+            "type": "string"
+          },
+          "domain": {
+            "description": "Optional market-specific domain.",
+            "type": "string"
+          },
+          "region_multiplier": {
+            "description": "Pricing multiplier applied for this market region.",
+            "type": "number"
+          },
+          "fx_rate": {
+            "description": "FX rate used for market currency conversion.",
+            "type": "number"
+          },
+          "import_cost": {
+            "description": "Default import-cost component for landed price calculations.",
+            "type": "number"
+          },
+          "tax_profile": {
+            "description": "Tax settings/profile object for this market.",
+            "type": "object",
+            "additionalProperties": true
+          },
+          "shipping_profile": {
+            "description": "Shipping settings/profile object for this market.",
+            "type": "object",
+            "additionalProperties": true
+          },
+          "feature_flags": {
+            "description": "Market-specific feature toggles.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          },
+          "fallback_market_id": {
+            "description": "Optional fallback market identifier.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "active_catalog_id": {
+            "description": "Optional active catalog identifier for this market.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "description": "Lifecycle status of the market.",
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "is_default": {
+            "description": "True when this market is configured as tenant default.",
+            "type": "boolean"
+          },
+          "cooling_minutes_override": {
+            "description": "Optional cooling-period override in minutes.",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "created_at": {
+            "description": "Creation timestamp in ISO format.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp in ISO format.",
             "type": "string"
           }
         },
@@ -2609,11 +2741,82 @@
         ]
       },
       "MetafieldDefinition": {
-        "description": "Metafield definition object returned by definition APIs. Includes dynamic fields persisted for the tenant.",
+        "description": "Metafield definition object returned by definition APIs.",
         "type": "object",
         "properties": {
           "id": {
             "description": "Metafield definition identifier.",
+            "type": "string"
+          },
+          "cms_id": {
+            "description": "Tenant CMS identifier that owns this definition.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "Definition namespace (for example `custom`).",
+            "type": "string"
+          },
+          "key": {
+            "description": "Definition key within the namespace.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Display name of the definition.",
+            "type": "string"
+          },
+          "owner_type": {
+            "description": "Owner resource type this definition applies to.",
+            "type": "string",
+            "enum": [
+              "product",
+              "customer",
+              "order",
+              "collection",
+              "blog_post"
+            ]
+          },
+          "type": {
+            "description": "Expected metafield value type.",
+            "type": "string",
+            "enum": [
+              "single_line_text",
+              "multi_line_text",
+              "integer",
+              "decimal",
+              "boolean",
+              "date",
+              "datetime",
+              "url",
+              "color",
+              "json"
+            ]
+          },
+          "description": {
+            "description": "Optional helper text describing usage.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "validations": {
+            "description": "Validation rules for this definition.",
+            "type": "object",
+            "additionalProperties": true
+          },
+          "pinned": {
+            "description": "Whether this definition is pinned in admin surfaces.",
+            "type": "boolean"
+          },
+          "created_by": {
+            "description": "User identifier that created this definition.",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Creation timestamp in ISO format.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp in ISO format.",
             "type": "string"
           }
         },
@@ -3066,11 +3269,39 @@
         ]
       },
       "MetafieldValue": {
-        "description": "Metafield value object returned by metafield APIs. Includes dynamic fields persisted for the tenant.",
+        "description": "Metafield value object returned by metafield APIs.",
         "type": "object",
         "properties": {
           "id": {
             "description": "Metafield value identifier.",
+            "type": "string"
+          },
+          "cms_id": {
+            "description": "Tenant CMS identifier that owns this value.",
+            "type": "string"
+          },
+          "definition_id": {
+            "description": "Metafield definition identifier this value belongs to.",
+            "type": "string"
+          },
+          "owner_id": {
+            "description": "Identifier of the owner resource for this value.",
+            "type": "string"
+          },
+          "value": {
+            "description": "Serialized metafield value payload.",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "User identifier that created this value.",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Creation timestamp in ISO format.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp in ISO format.",
             "type": "string"
           }
         },
@@ -7074,11 +7305,52 @@
         ]
       },
       "Taxonomy": {
-        "description": "Taxonomy object returned by taxonomy APIs. Includes dynamic fields persisted for the tenant.",
+        "description": "Taxonomy group returned by taxonomy APIs.",
         "type": "object",
         "properties": {
           "id": {
             "description": "Taxonomy identifier.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Taxonomy group name.",
+            "type": "string"
+          },
+          "values": {
+            "description": "Available values under this taxonomy group.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "description": "Origin of taxonomy (`system` or `custom`).",
+            "type": "string",
+            "enum": [
+              "system",
+              "custom"
+            ]
+          },
+          "cms_id": {
+            "description": "Tenant CMS identifier for custom taxonomies; may be null for system taxonomies.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_by": {
+            "description": "Creator user identifier for custom taxonomies; may be null for system taxonomies.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "description": "Creation timestamp in ISO format.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp in ISO format.",
             "type": "string"
           }
         },
